@@ -1,10 +1,12 @@
 <template>
   <div class="planes-plataforma">
+
+     <div class="back-button-container">
+      <button type="button" class="btn back" @click="volverBuscador">⬅ Volver</button>
+    </div>
+
     <!-- HEADER -->
     <header class="top">
-      <button type="button" class="btn back" @click="volverBuscador">
-        ← Volver
-      </button>
 
       <div class="header-main">
         <h2>Planes para {{ nombrePlataforma }}</h2>
@@ -78,6 +80,9 @@
       <p>No hay planes activos para esta plataforma en este momento.</p>
     </section>
   </div>
+  <footer class="footer">
+    <p>© {{ new Date().getFullYear() }} Fragments — Todos los derechos reservados.</p>
+  </footer>
 </template>
 
 <script setup lang="ts">

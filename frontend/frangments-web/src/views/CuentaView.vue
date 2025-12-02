@@ -1,10 +1,28 @@
 <template>
   <div class="cuenta">
 
-    <!-- HEADER -->
-    <header class="header animate-fade">
-      <h2 class="title">Mi Cuenta</h2>
-    </header>
+    <div class="back-button-container">
+      <button type="button" class="btn back" @click="volverDashboard">⬅ Volver</button>
+    </div>
+
+    <header class="topbar animate-fade">
+      <!-- IZQUIERDA -->
+      <div class="header-left">
+      </div>
+
+      <!-- CENTRO -->
+      <div class="header-center">
+        <h2 class="title">Mi Cuenta</h2>
+      </div>
+
+      <!-- DERECHA -->
+      <div class="actions">
+        <div class="actions">
+          <button class="btn saldo" @click="irPlataformaPago"> Añadir saldo</button>
+          <button class="btn logout" @click="logout"> Cerrar sesión </button>
+        </div>
+      </div>
+     </header>
 
     <!-- INFO PERSONAL -->
     <section class="info-card float animate-fade-delayed">
@@ -77,6 +95,9 @@
       <button class="btn logout" @click="logout"> Cerrar sesión </button>
     </div>
   </div>
+  <footer class="footer">
+    <p>© {{ new Date().getFullYear() }} Fragments — Todos los derechos reservados.</p>
+  </footer>
 </template>
 
 <script setup lang="ts">
@@ -419,5 +440,36 @@ function irPlataformaPago() {
     min-width: 0;
     flex: 1;
   }
+}
+
+.topbar {
+  /* 1. Habilita Flexbox */
+  display: flex;
+  /* 2. Alinea verticalmente los elementos (título y botones) */
+  align-items: center;
+  justify-content: space-between;
+  
+  /* Añadimos padding para que los elementos no toquen los bordes de la pantalla */
+  padding: 0 40px; 
+  height: 60px; /* Altura para que se vea como una barra */
+}
+
+.header-center {
+  /* 3. Centra el título en el espacio restante de la barra */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Usamos el div de acciones anidado para empujarlo a la derecha */
+.actions > .actions {
+  /* 4. Este margen automático empuja este contenedor lo más a la derecha posible */
+  margin-left: auto; 
+  display: flex; /* Asegura que los botones internos estén lado a lado */
+  gap: 15px; /* Espacio entre los botones */
+}
+
+.title {
+  margin: 0;
+  color: #333;
 }
 </style>

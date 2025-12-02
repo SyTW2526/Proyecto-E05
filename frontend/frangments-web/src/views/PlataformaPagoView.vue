@@ -3,12 +3,7 @@
 
     <!-- BOTÓN VOLVER -->
     <button class="back-btn" @click="volverCuenta">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-        stroke-width="1.5" stroke="currentColor" class="icon">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-      </svg>
-      Volver
+      ⬅ Volver
     </button>
 
     <!-- TARJETA PRINCIPAL -->
@@ -41,6 +36,9 @@
 
     </div>
   </div>
+  <footer class="footer">
+    <p>© {{ new Date().getFullYear() }} Fragments — Todos los derechos reservados.</p>
+  </footer>
 </template>
 
 <script setup lang="ts">
