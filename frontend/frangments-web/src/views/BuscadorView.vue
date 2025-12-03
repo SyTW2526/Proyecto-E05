@@ -57,9 +57,6 @@
       <p v-else class="no-resultados">No se encontraron resultados.</p>
     </section>
   </div>
-  <footer class="footer">
-    <p>© {{ new Date().getFullYear() }} Fragments — Todos los derechos reservados.</p>
-  </footer>
 </template>
 
 <script setup lang="ts">

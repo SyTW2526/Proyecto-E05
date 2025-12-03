@@ -1,10 +1,13 @@
 <template>
   <div class="app">
     <RouterView />
+    <Footer />
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import Footer from "@/components/Footer.vue"
+</script>
 
 <style scoped>
 .app {
