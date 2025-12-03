@@ -1,15 +1,16 @@
 <template>
   <div class="buscador">
+
+    <div class="back-button-container">
+      <button type="button" class="btn back" @click="volverDashboard">⬅ Volver</button>
+    </div>
+
     <header class="header">
       <h2>Buscador de Plataformas</h2>
       <p class="subtitle">Encuentra fácilmente las plataformas que te interesan</p>
     </header>
 
     <div class="search-bar">
-      <nav class="nav">
-        <button type="button" class="btn back" @click="volverDashboard">⬅ Volver</button>
-      </nav>
-
       <input
         type="text"
         v-model="query"
@@ -56,6 +57,9 @@
       <p v-else class="no-resultados">No se encontraron resultados.</p>
     </section>
   </div>
+  <footer class="footer">
+    <p>© {{ new Date().getFullYear() }} Fragments — Todos los derechos reservados.</p>
+  </footer>
 </template>
 
 <script setup lang="ts">
@@ -191,6 +195,7 @@ function verPlanes(plataforma: Plataforma) {
 
 /* Input búsqueda */
 .search-bar input {
+  min-width: 450px;
   flex: 1;
   padding: 0.8rem 1rem;
   border-radius: 999px;
@@ -213,6 +218,9 @@ function verPlanes(plataforma: Plataforma) {
 
 /* Botón buscar */
 .btn.buscar {
+  width: 160px; /* cambia el ancho a lo que quieras */
+  padding: 0.7rem 0; 
+  text-align: center;
   background: linear-gradient(135deg, #4f46e5, #6366f1);
   color: #ffffff;
   box-shadow: 0 12px 24px rgba(79, 70, 229, 0.45);

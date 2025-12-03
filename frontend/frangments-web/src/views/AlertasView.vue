@@ -1,12 +1,13 @@
 <template>
   <div class="alertas">
+
+    <div class="back-button-container">
+      <button type="button" class="btn back" @click="volverDashboard">⬅ Volver</button>
+    </div>
+  
     <!-- TOP BAR -->
     <header class="topbar animate-fade">
       <h1 class="page-title">Mis alertas</h1>
-
-      <button class="btn small primary" @click="volverDashboard">
-        ⬅ Volver
-      </button>
     </header>
 
     <!-- LISTA DE ALERTAS -->
@@ -50,6 +51,9 @@
       </template>
     </section>
   </div>
+  <footer class="footer">
+    <p>© {{ new Date().getFullYear() }} Fragments — Todos los derechos reservados.</p>
+  </footer>
 </template>
 
 <script setup lang="ts">
@@ -260,6 +264,8 @@ const formatearFecha = (fechaRaw?: string) => {
   font-weight: 700;
   color: #0f172a;          /* negro azulado elegante */
   margin-bottom: 1rem;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 

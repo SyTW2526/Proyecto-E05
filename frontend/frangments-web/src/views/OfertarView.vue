@@ -1,5 +1,10 @@
 <template>
   <div class="ofertar">
+
+    <div class="back-button-container">
+      <button type="button" class="btn back" @click="volverDashboard">⬅ Volver</button>
+    </div>
+
     <header class="header">
       <h2>Publicar un nuevo plan</h2>
       <p class="subtitle">Crea un plan y se creará automáticamente su grupo asociado</p>
@@ -69,12 +74,14 @@
       <!-- Botones -->
       <div class="botones">
         <button class="btn publicar" type="submit">Publicar plan</button>
-        <button type="button" class="btn back" @click="volverDashboard">⬅ Volver</button>
       </div>
     </form>
 
     <div v-if="mensaje" class="mensaje">{{ mensaje }}</div>
   </div>
+  <footer class="footer">
+    <p>© {{ new Date().getFullYear() }} Fragments — Todos los derechos reservados.</p>
+  </footer>
 </template>
 
 <script setup lang="ts">
@@ -192,9 +199,8 @@ input:focus, select:focus {
   box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.25);
 }
 .botones { display: flex; justify-content: space-between; gap: 1rem; margin-top: 0.5rem; }
-.btn { flex: 1; font-weight: 600; border: none; border-radius: 0.9rem; padding: 0.85rem 1rem; cursor: pointer; }
+.btn { flex: 1; font-weight: 600; border: none; border-radius: 0.9rem; padding: 0.65rem 1rem; cursor: pointer; }
 .btn.publicar { background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff; }
-.btn.back { background: #e5e7eb; color: #111827; }
 .mensaje {
   margin-top: 1.25rem;
   font-weight: 600;

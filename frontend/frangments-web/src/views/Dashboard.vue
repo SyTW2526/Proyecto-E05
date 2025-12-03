@@ -147,6 +147,13 @@
               <!-- inicial como “logo” -->
             </div>
 
+            <!--<div class="plat-logo">  // Pa esto hay que poner logo: en el script
+              <img
+                :src="require(`@/assets/${plataforma.logo}`)"
+                :alt="plataforma.nombre"
+              />
+            </div>-->
+
             <div class="plat-info">
               <h4 class="plat-name">{{ plataforma.nombre }}</h4>
             </div>
@@ -170,6 +177,9 @@
       </button>
     </div>
   </div>
+  <footer class="footer">
+    <p>© {{ new Date().getFullYear() }} Fragments — Todos los derechos reservados.</p>
+  </footer>
 </template>
 
 <script setup lang="ts">

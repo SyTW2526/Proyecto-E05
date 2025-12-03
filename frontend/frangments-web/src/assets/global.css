@@ -169,3 +169,36 @@ body {
   border-radius: var(--radius);
   font-size: 0.92rem;
 }
+
+.footer {
+  margin-top: 20px;
+  padding: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.back-button-container {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  text-align: left !important;
+  width: auto;
+}
+
+/* Volver */
+.btn.back {
+  background: rgba(15, 23, 42, 0.85);
+  color: #e5e7eb;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  gap: 0.3rem;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.45);
+}
+
+.btn.back:hover {
+  transform: translateX(-2px);
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.6);
+}
