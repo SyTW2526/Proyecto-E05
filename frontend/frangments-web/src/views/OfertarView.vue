@@ -81,12 +81,14 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAccountStore } from "@/stores/cuenta";
+import { useAlertStore } from "@/stores/alertas";
 import apiax from "@/apiAxios";
 
 const router = useRouter();
 const plataformas = ref<Array<{ id_plataforma: number; nombre: string }>>([]);
 const mensaje = ref("");
 const account = useAccountStore();
+const alertStore = useAlertStore(); 
 
 const form = ref({
   plataforma: "" as number | "",
@@ -135,7 +137,7 @@ async function crearPlan() {
       },
       { headers: { Authorization: `Bearer ${token}` } }
     );
-
+    await alertStore.fetchAlertas();
     mensaje.value = "✅ Plan y grupo creado con éxito";
     form.value = { plataforma: "", precio: null, fecha_vencimiento: "", personas: 1, nuevo_grupo: "" };
   } catch (error: any) {

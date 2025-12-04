@@ -29,6 +29,7 @@ export const useAlertStore = defineStore("alertas", () => {
   async function marcarTodasComoVistas() {
     try {
       await alertasService.marcarTodasVistas();
+      await fetchAlertas();
       alertas.value = alertas.value.map(a => ({ ...a, vista: true }));
     } catch {}
   }

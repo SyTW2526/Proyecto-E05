@@ -1,6 +1,7 @@
 // src/stores/admin.ts
 import { defineStore } from "pinia";
 import { adminService } from "@/api/admin.service";
+import { useAlertStore } from "./alertas";
 
 type AdminUser = {
   id_usuario: number;
@@ -66,30 +67,40 @@ export const useAdminStore = defineStore("admin", {
     },
 
     async eliminarUsuario(id_usuario: number) {
+      const alertStore = useAlertStore();
       await adminService.deleteUser(id_usuario);
       this.users = this.users.filter((u) => u.id_usuario !== id_usuario);
+      await alertStore.fetchAlertas(); 
     },
 
     async promoverUsuario(id_usuario: number) {
+      const alertStore = useAlertStore();
       await adminService.promoteUser(id_usuario);
       const user = this.users.find((u) => u.id_usuario === id_usuario);
       if (user) user.tipo = "admin";
+      await alertStore.fetchAlertas(); 
     },
 
     async eliminarGrupo(id: number) {
+      const alertStore = useAlertStore();
       await adminService.deleteGrupo(id);
       this.grupos = this.grupos.filter((g) => g.id !== id);
+      await alertStore.fetchAlertas(); 
     },
 
     async eliminarOferta(id: number) {
+      const alertStore = useAlertStore();
       await adminService.deleteOferta(id);
       this.ofertas = this.ofertas.filter((o) => o.id !== id);
+      await alertStore.fetchAlertas(); 
     },
 
     async actualizarSaldo(user: AdminUser) {
+      const alertStore = useAlertStore();
       await adminService.updateSaldo(user.id_usuario, user.nuevoSaldo as number);
       user.saldo = user.nuevoSaldo as number;
       user.nuevoSaldo = null;
+      await alertStore.fetchAlertas(); 
     },
   },
 });
