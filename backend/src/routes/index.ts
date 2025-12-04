@@ -14,9 +14,13 @@ import alertasRouter from "../modules/alertas/alertas.router"
 const router = Router();
 
 // === USERS ===
-router.use("/users", userRouter);
+// === USERS ===
+router.use("/users", userRouter);          // 👈 SIN authMiddleware aquí
+
+// Si quieres mantener estas rutas "planas", vale:
 router.get("/me", authMiddleware, userController.me);
-router.get("/user/data", authMiddleware, userController.getUserData); 
+router.get("/user/data", authMiddleware, userController.getUserData);
+
 
 // === PLATAFORMA ===
 router.use("/plataforma", plataformaRouter);
