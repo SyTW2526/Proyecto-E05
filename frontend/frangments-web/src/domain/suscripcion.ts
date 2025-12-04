@@ -5,6 +5,7 @@ export class Suscripcion {
     public precio: number,           
     public fechaVencimiento: string,
     public proximoCobro: string,
+    public idGrupo: number, 
   ) {}
 
   static fromDTO(d: any) {
@@ -14,6 +15,7 @@ export class Suscripcion {
       d.precio_usuario ?? d.precio_plan,
       d.fecha_vencimiento,
       d.proximo_cobro,
+      d.id_grupo,
     );
   }
 }

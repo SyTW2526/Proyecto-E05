@@ -5,24 +5,9 @@
       <button type="button" class="btn back" @click="volverDashboard">⬅ Volver</button>
     </div>
 
-    <header class="topbar animate-fade">
-      <!-- IZQUIERDA -->
-      <div class="header-left">
-      </div>
-
-      <!-- CENTRO -->
-      <div class="header-center">
-        <h2 class="title">Mi Cuenta</h2>
-      </div>
-
-      <!-- DERECHA -->
-      <div class="actions">
-        <div class="actions">
-          <button class="btn saldo" @click="irPlataformaPago"> Añadir saldo</button>
-          <button class="btn logout" @click="logout"> Cerrar sesión </button>
-        </div>
-      </div>
-     </header>
+    <header class="cuenta-header animate-fade">
+      <h2 class="cuenta-title">Mi Cuenta</h2>
+    </header>
 
     <!-- INFO PERSONAL -->
     <section class="info-card float animate-fade-delayed">
@@ -44,10 +29,18 @@
           <p>{{ auth.user?.telefono || "No disponible" }}</p>
         </div>
 
-        <div class="info-item">
-          <label>Saldo</label>
-          <p>{{ account.loading ? "Cargando..." : account.saldo + " €" }}</p>
-        </div>
+        <div class="info-item saldo-item">
+  <label>Saldo</label>
+  <div class="saldo-box">
+    <span class="saldo-amount">
+      {{ account.loading ? "Cargando..." : account.saldo + " €" }}
+    </span>
+
+    <button class="btn saldo-pill" @click="irPlataformaPago">
+      Añadir saldo
+    </button>
+  </div>
+</div>
       </div>
     </section>
 
@@ -71,33 +64,33 @@
       <!-- SUSCRIPCIONES -->
       <div class="panel float">
         <h3 class="section-title">Suscripciones activas</h3>
-
+      
         <ul>
-          <li v-for="sub in account.suscripciones" :key="sub.id">
-            {{ sub.nombre }} – {{ sub.precio }}€  
-            <br />
-            <span class="sub-fecha">Vence: {{ sub.fechaVencimiento }}</span>
-            <br />
-            <span class="sub-fecha">Próximo cobro: {{ sub.proximoCobro }}</span>
+          <li
+            v-for="sub in account.suscripciones"
+            :key="sub.id"
+            class="sub-item"
+          >
+            <div class="sub-info">
+              {{ sub.nombre }} – {{ sub.precio }}€
+              <br />
+              <span class="sub-fecha">Vence: {{ formatDate(sub.fechaVencimiento) }}</span>
+              <br />
+              <span class="sub-fecha">Próximo cobro: {{ formatDate(sub.proximoCobro) }}</span>
+            </div>
+          
+            <button class="btn small danger" @click="cancelarSuscripcion(sub)">
+              Dar de baja
+            </button>
           </li>
-
+        
           <li v-if="account.suscripciones.length === 0">
             No tienes suscripciones activas.
           </li>
         </ul>
       </div>
     </section>
-
-    <!-- BOTONES ABAJO -->
-    <div class="acciones-floating animate-fade-delayed3">
-      <button class="btn secondary" @click="volverDashboard">⬅ Volver</button>
-      <button class="btn saldo" @click="irPlataformaPago"> Añadir saldo</button>
-      <button class="btn logout" @click="logout"> Cerrar sesión </button>
-    </div>
   </div>
-  <footer class="footer">
-    <p>© {{ new Date().getFullYear() }} Fragments — Todos los derechos reservados.</p>
-  </footer>
 </template>
 
 <script setup lang="ts">
@@ -105,13 +98,12 @@ import { ref, onMounted } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
 import { useAccountStore } from "@/stores/cuenta";
-import apiax from "@/apiAxios";
+import { Suscripcion } from "@/domain/suscripcion";
+import { formatDate } from "@/utils/formatDate";
 
 const auth = useAuthStore();
 const router = useRouter();
 const account = useAccountStore();
-const creandoGrupo = ref(false);
-const nuevoGrupo = ref("");
 
 onMounted(async () => {
   try {
@@ -124,25 +116,6 @@ onMounted(async () => {
   }
 });
 
-async function crearGrupo() {
-  if (!nuevoGrupo.value.trim()) {
-    return alert("Por favor, introduce un nombre para el grupo.");
-  }
-  try {
-    await account.createGroup(nuevoGrupo.value);
-    nuevoGrupo.value = "";
-    creandoGrupo.value = false;
-  } catch (error) {
-    console.error("Error al crear el grupo:", error);
-    alert("Hubo un error al crear el grupo.");
-  }
-}
-
-function cancelarCreacion() {
-  creandoGrupo.value = false;
-  nuevoGrupo.value = "";
-}
-
 async function logout() {
   await auth.logout();
   router.push({ name: "login" });
@@ -154,6 +127,19 @@ function volverDashboard() {
 
 function irPlataformaPago() {
   router.push({ name: "plataformapago" });
+}
+
+async function cancelarSuscripcion(sub: Suscripcion) {
+  const ok = confirm(
+    `¿Seguro que quieres darte de baja del grupo "${sub.nombre}"?`
+  );
+  if (!ok) return;
+  try {
+    await account.cancelSubscription(sub);
+  } catch (error) {
+    console.error("Error al cancelar la suscripción:", error);
+    alert("No se pudo dar de baja la suscripción. Inténtalo de nuevo.");
+  }
 }
 
 </script>
@@ -442,34 +428,74 @@ function irPlataformaPago() {
   }
 }
 
-.topbar {
-  /* 1. Habilita Flexbox */
+/* ===== HEADER MI CUENTA (aislado del dashboard) ===== */
+
+.cuenta-header {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.cuenta-title {
+  margin: 0;
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+
+/* ===== SALDO CON BOTÓN DENTRO DE LA CAJA ===== */
+
+.saldo-item .saldo-box {
+  margin-top: 0.35rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.8rem;
+
+  background: radial-gradient(circle at top left,
+    rgba(30, 64, 175, 0.65),
+    rgba(15, 23, 42, 0.9)
+  );
+  border: 1px solid rgba(129, 140, 248, 0.55);
+
   display: flex;
-  /* 2. Alinea verticalmente los elementos (título y botones) */
   align-items: center;
   justify-content: space-between;
-  
-  /* Añadimos padding para que los elementos no toquen los bordes de la pantalla */
-  padding: 0 40px; 
-  height: 60px; /* Altura para que se vea como una barra */
+  gap: 0.75rem;
 }
 
-.header-center {
-  /* 3. Centra el título en el espacio restante de la barra */
-  margin-left: auto;
-  margin-right: auto;
+.saldo-amount {
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
-/* Usamos el div de acciones anidado para empujarlo a la derecha */
-.actions > .actions {
-  /* 4. Este margen automático empuja este contenedor lo más a la derecha posible */
-  margin-left: auto; 
-  display: flex; /* Asegura que los botones internos estén lado a lado */
-  gap: 15px; /* Espacio entre los botones */
+/* Botón brillante dentro del saldo */
+.btn.saldo-pill {
+  background: linear-gradient(135deg, #22c55e, #4ade80);
+  color: #f9fafb;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  box-shadow: 0 10px 24px rgba(22, 163, 74, 0.55);
 }
 
-.title {
-  margin: 0;
-  color: #333;
+.btn.saldo-pill:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px) scale(1.02);
 }
+
+/* Ajuste de .info-item p para que no afecte al saldo */
+.info-item p {
+  margin-top: 0.35rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.8rem;
+  background: radial-gradient(circle at top left,
+    rgba(30, 64, 175, 0.65),
+    rgba(15, 23, 42, 0.9)
+  );
+  border: 1px solid rgba(129, 140, 248, 0.55);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
 </style>

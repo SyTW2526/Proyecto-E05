@@ -1,5 +1,5 @@
 <template>
-  <div class="ofertar">
+  <div class="ofertar page">
 
     <div class="back-button-container">
       <button type="button" class="btn back" @click="volverDashboard">⬅ Volver</button>
@@ -79,21 +79,20 @@
 
     <div v-if="mensaje" class="mensaje">{{ mensaje }}</div>
   </div>
-  <footer class="footer">
-    <p>© {{ new Date().getFullYear() }} Fragments — Todos los derechos reservados.</p>
-  </footer>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAccountStore } from "@/stores/cuenta";
+import { useAlertStore } from "@/stores/alertas";
 import apiax from "@/apiAxios";
 
 const router = useRouter();
 const plataformas = ref<Array<{ id_plataforma: number; nombre: string }>>([]);
 const mensaje = ref("");
 const account = useAccountStore();
+const alertStore = useAlertStore();
 
 const form = ref({
   plataforma: "" as number | "",
@@ -124,13 +123,10 @@ async function crearPlan() {
   }
 
   try {
-    // Crear grupo usando Pinia
     const nuevoGrupo = await account.createGroup(form.value.nuevo_grupo);
     const id_grupo = nuevoGrupo.id_grupo;
 
     const token = localStorage.getItem("token");
-
-    // Crear plan asociado al grupo
     await apiax.post(
       "/plan_sub/subscribe",
       {
@@ -142,7 +138,7 @@ async function crearPlan() {
       },
       { headers: { Authorization: `Bearer ${token}` } }
     );
-
+    await alertStore.fetchAlertas();
     mensaje.value = "✅ Plan y grupo creado con éxito";
     form.value = { plataforma: "", precio: null, fecha_vencimiento: "", personas: 1, nuevo_grupo: "" };
   } catch (error: any) {
@@ -159,54 +155,161 @@ function volverDashboard() {
 <style scoped>
 .ofertar {
   min-height: 100vh;
-  padding: 3rem 1.5rem;
+  padding: 3.5rem 3rem 3rem;
   background: linear-gradient(120deg, #e0f2ff, #a2b8d9, #1e293b);
-  font-family: "Inter", sans-serif;
-  color: #0f172a;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  color: #e5e7eb;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2rem;
 }
-.header { text-align: center; }
-.header h2 { font-size: 2rem; font-weight: 800; color: #111827; }
-.subtitle { color: #4b5563; font-size: 0.95rem; margin-top: 0.4rem; }
+
+/* BOTÓN VOLVER ARRIBA IZQUIERDA */
+.back-button-container {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 40;
+}
+
+.back-button-container .btn.back {
+  background: #0f172a;
+  padding: 0.55rem 1.4rem;
+  border-radius: 999px;
+  border: none;
+  color: #f9fafb;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.9);
+  transition: 0.2s ease;
+}
+
+.back-button-container .btn.back:hover {
+  transform: translateY(-2px);
+  background: #111827;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.header h2 {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(15, 23, 42, 0.8);
+}
+
+.subtitle {
+  color: #e5e7eb;
+  font-size: 0.95rem;
+  margin-top: 0.4rem;
+  opacity: 0.9;
+}
+
+/* FORMULARIO: PANEL TIPO DASHBOARD */
 .form {
   width: 100%;
-  max-width: 520px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(14px);
-  padding: 2.2rem 2.5rem;
-  border-radius: 1.3rem;
-  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.15);
+  max-width: 640px;
+  background: radial-gradient(circle at top left,
+    rgba(15, 23, 42, 0.96),
+    rgba(15, 23, 42, 1)
+  );
+  backdrop-filter: blur(18px);
+  padding: 2.3rem 2.6rem;
+  border-radius: 1.6rem;
+  box-shadow: 0 26px 60px rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.35);
   display: flex;
   flex-direction: column;
   gap: 1.4rem;
 }
-.form-group { display: flex; flex-direction: column; gap: 0.35rem; }
-label { font-weight: 600; font-size: 0.9rem; color: #1f2937; }
-input, select {
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #e5e7eb;
+}
+
+/* CAMPOS */
+input,
+select {
   padding: 0.8rem 1rem;
-  border-radius: 0.75rem;
-  border: 1px solid #cbd5e1;
+  border-radius: 0.9rem;
+  border: 1px solid #334155;
   font-size: 0.95rem;
   outline: none;
-  background: #f9fafb;
+  background: rgba(15, 23, 42, 0.95);
+  color: #e5e7eb;
 }
-input:focus, select:focus {
-  border-color: #4b6cb7;
-  background: #ffffff;
-  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.25);
+
+input::placeholder {
+  color: #9ca3af;
 }
-.botones { display: flex; justify-content: space-between; gap: 1rem; margin-top: 0.5rem; }
-.btn { flex: 1; font-weight: 600; border: none; border-radius: 0.9rem; padding: 0.65rem 1rem; cursor: pointer; }
-.btn.publicar { background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff; }
-.mensaje {
-  margin-top: 1.25rem;
+
+input:focus,
+select:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.35);
+}
+
+/* BOTONES */
+.botones {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.8rem;
+}
+
+.btn {
   font-weight: 600;
-  color: #111827;
-  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 999px;
+  padding: 0.75rem 1.8rem;
+  cursor: pointer;
+}
+
+/* Sin exceso de brillo, pero con look moderno */
+.btn.publicar {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #ffffff;
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.55);
+  transition: 0.18s ease;
+}
+
+.btn.publicar:hover {
+  filter: brightness(1.05);
+  transform: translateY(-2px);
+}
+
+/* MENSAJE RESULTADO */
+.mensaje {
+  margin-top: 1.4rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  background: rgba(15, 23, 42, 0.9);
   padding: 0.9rem 1.1rem;
   border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .ofertar {
+    padding: 3.5rem 1.4rem 2.5rem;
+  }
+
+  .form {
+    padding: 1.8rem 1.6rem;
+  }
 }
 </style>

@@ -10,4 +10,9 @@ export const accountService = {
     const { data } = await apiax.post("/grupo", { nombre });
     return data; // { message, group }
   },
+
+  async leaveGroup(id_grupo: number) {
+    const { data } = await apiax.post("/miembro_grupo/leave", { id_grupo });
+    return data;
+  },
 };
