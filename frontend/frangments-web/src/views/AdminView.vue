@@ -1,5 +1,6 @@
 <template>
   <div class="admin">
+    <button class="back-btn" @click="$router.back()">← Volver</button>
     <!-- HEADER -->
     <header class="header">
       <h2 class="title">Panel de Administración</h2>
@@ -46,64 +47,121 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in usuarios" :key="user.id_usuario">
+          <tr v-for="user in paginatedUsuarios" :key="user.id_usuario">
             <td>{{ user.nombre }}</td>
             <td>{{ user.mail }}</td>
             <td>{{ user.tipo }}</td>
             <td>
               <button class="btn-sm danger" @click="eliminarUsuario(user.id_usuario)">
-                Eliminar
+                🗑 Eliminar
               </button>
               <button
                 v-if="user.tipo !== 'admin'"
                 class="btn-sm success"
                 @click="promoverUsuario(user.id_usuario)"
               >
-                Promover a admin
+                ⭐ Promover a admin
               </button>
             </td>
           </tr>
         </tbody>
       </table>
+      <div class="pagination" v-if="totalPagesUsuarios > 1">
+        <button
+          class="pager-btn"
+          :disabled="pageUsuarios === 1"
+          @click="goToPageUsuarios(-1)"
+        >
+          ‹ Anterior
+        </button>
+      
+        <span class="pager-info">
+          Página {{ pageUsuarios }} de {{ totalPagesUsuarios }}
+        </span>
+      
+        <button
+          class="pager-btn"
+          :disabled="pageUsuarios === totalPagesUsuarios"
+          @click="goToPageUsuarios(1)"
+        >
+          Siguiente ›
+        </button>
+      </div>
     </section>
 
     <!-- SECCIÓN GRUPOS -->
     <section v-if="seccionActiva === 'grupos'" class="panel">
       <h3>Grupos registrados</h3>
       <ul class="lista">
-        <li v-for="grupo in grupos" :key="grupo.id" class="item">
+        <li v-for="grupo in paginatedGrupos" :key="grupo.id" class="item">
           <span>{{ grupo.nombre }}</span>
-          <button class="btn-sm danger" @click="eliminarGrupo(grupo.id)">Eliminar</button>
+          <button class="btn-sm danger" @click="eliminarGrupo(grupo.id)">
+            🗑 Eliminar
+          </button>
         </li>
         <li v-if="grupos.length === 0">No hay grupos registrados.</li>
       </ul>
+        <div class="pagination" v-if="totalPagesGrupos > 1">
+        <button
+          class="pager-btn"
+          :disabled="pageGrupos === 1"
+          @click="goToPageGrupos(-1)"
+        >
+          ‹ Anterior
+        </button>
+      
+        <span class="pager-info">
+          Página {{ pageGrupos }} de {{ totalPagesGrupos }}
+        </span>
+      
+        <button
+          class="pager-btn"
+          :disabled="pageGrupos === totalPagesGrupos"
+          @click="goToPageGrupos(1)"
+        >
+          Siguiente ›
+        </button>
+      </div>
     </section>
 
     <!-- SECCIÓN OFERTAS -->
     <section v-if="seccionActiva === 'ofertas'" class="panel">
       <h3>Ofertas publicadas</h3>
       <ul class="lista">
-        <li v-for="oferta in ofertas" :key="oferta.id" class="item">
+        <li v-for="oferta in paginatedOfertas" :key="oferta.id" class="item">
           <div>
             <strong>{{ oferta.plataforma }}</strong> — {{ oferta.precio }} €
             <br />
             <small>Creada por {{ oferta.usuario }} ({{ oferta.grupo }})</small>
           </div>
-          <button class="btn-sm danger" @click="eliminarOferta(oferta.id)">Eliminar</button>
+          <button class="btn-sm danger" @click="eliminarOferta(oferta.id)">
+             🗑 Eliminar
+          </button>
         </li>
         <li v-if="ofertas.length === 0">No hay ofertas activas.</li>
       </ul>
+        <div class="pagination" v-if="totalPagesOfertas > 1">
+        <button
+          class="pager-btn"
+          :disabled="pageOfertas === 1"
+          @click="goToPageOfertas(-1)"
+        >
+          ‹ Anterior
+        </button>
+      
+        <span class="pager-info">
+          Página {{ pageOfertas }} de {{ totalPagesOfertas }}
+        </span>
+      
+        <button
+          class="pager-btn"
+          :disabled="pageOfertas === totalPagesOfertas"
+          @click="goToPageOfertas(1)"
+        >
+          Siguiente ›
+        </button>
+      </div>
     </section>
-
-    <!-- BOTONES FINALES -->
-    <footer class="acciones-finales">
-      <button class="btn-pill-dark" @click="volverDashboard">
-        ← Volver
-      </button>
-      <button class="btn-pill-red" @click="logout">
-        Cerrar sesión
-      </button>
-    </footer>
   </div>
 </template>
 
@@ -156,21 +214,66 @@ async function eliminarOferta(id: number) {
   await admin.eliminarOferta(id);
 }
 
-async function actualizarSaldo(user: any) {
-  if (user.nuevoSaldo == null) return alert("Introduce un saldo válido.");
-  await admin.actualizarSaldo(user);
-  user.nuevoSaldo = null;
-  alert(`Saldo de ${user.nombre} actualizado.`);
-}
-
 function volverDashboard() {
   router.push({ name: "dashboard" });
 }
 
-async function logout() {
-  await auth.logout();
-  router.push({ name: "login" });
+const pageSize = 10;
+
+// Páginas actuales
+const pageUsuarios = ref(1);
+const pageGrupos = ref(1);
+const pageOfertas = ref(1);
+
+// USUARIOS
+const totalPagesUsuarios = computed(() =>
+  Math.max(1, Math.ceil(usuarios.value.length / pageSize))
+);
+const paginatedUsuarios = computed(() => {
+  const start = (pageUsuarios.value - 1) * pageSize;
+  return usuarios.value.slice(start, start + pageSize);
+});
+
+// GRUPOS
+const totalPagesGrupos = computed(() =>
+  Math.max(1, Math.ceil(grupos.value.length / pageSize))
+);
+const paginatedGrupos = computed(() => {
+  const start = (pageGrupos.value - 1) * pageSize;
+  return grupos.value.slice(start, start + pageSize);
+});
+
+// OFERTAS
+const totalPagesOfertas = computed(() =>
+  Math.max(1, Math.ceil(ofertas.value.length / pageSize))
+);
+const paginatedOfertas = computed(() => {
+  const start = (pageOfertas.value - 1) * pageSize;
+  return ofertas.value.slice(start, start + pageSize);
+});
+
+// Helpers cambiar página
+function goToPageUsuarios(delta: number) {
+  pageUsuarios.value = Math.min(
+    totalPagesUsuarios.value,
+    Math.max(1, pageUsuarios.value + delta)
+  );
 }
+
+function goToPageGrupos(delta: number) {
+  pageGrupos.value = Math.min(
+    totalPagesGrupos.value,
+    Math.max(1, pageGrupos.value + delta)
+  );
+}
+
+function goToPageOfertas(delta: number) {
+  pageOfertas.value = Math.min(
+    totalPagesOfertas.value,
+    Math.max(1, pageOfertas.value + delta)
+  );
+}
+
 </script>
 
 <style scoped>
@@ -213,6 +316,31 @@ async function logout() {
 }
 
 /* == BOTONES NAV SUPERIORES (ESTILO DASHBOARD) == */
+.back-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 9999;
+
+  background: #0f172a;
+  padding: 10px 20px;
+  border-radius: 20px;
+
+  color: white;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+
+  box-shadow: 0 7px 20px rgba(0, 0, 0, 0.45);
+  transition: 0.2s ease-in-out;
+}
+
+.back-btn:hover {
+  transform: translateY(-2px);
+  background: #1e293b;
+}
+
+
 .acciones-globales {
   display: flex;
   justify-content: center;
@@ -304,33 +432,41 @@ tbody tr:hover {
 
 /* === BOTONES ACCIÓN PEQUEÑOS === */
 .btn-sm {
-  padding: 0.35rem 0.9rem;
+  padding: 0.35rem 1rem;
   font-size: 0.78rem;
   font-weight: 600;
   border-radius: 999px;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: background 0.18s ease, transform 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+  white-space: nowrap;
 }
 
 .btn-sm.danger {
-  background: #dc2626;
+  background: radial-gradient(circle at 30% 0%, #f97373, #b91c1c);
   color: #fff;
+  box-shadow: 0 8px 18px rgba(248, 113, 113, 0.35);
 }
 
 .btn-sm.danger:hover {
-  background: #b91c1c;
-  transform: translateY(-2px);
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(248, 113, 113, 0.5);
 }
 
 .btn-sm.success {
-  background: #16a34a;
+  background: radial-gradient(circle at 30% 0%, #4ade80, #15803d);
   color: #fff;
+  box-shadow: 0 8px 18px rgba(74, 222, 128, 0.35);
 }
 
 .btn-sm.success:hover {
-  background: #15803d;
-  transform: translateY(-2px);
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(74, 222, 128, 0.5);
 }
 
 /* === LISTAS (GRUPOS / OFERTAS) === */
@@ -422,5 +558,42 @@ tbody tr:hover {
     width: 100%;
     justify-content: center;
   }
+}
+
+/* === PAGINACIÓN === */
+.pagination {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  font-size: 0.82rem;
+  color: #cbd5f5;
+}
+
+.pager-btn {
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: rgba(15, 23, 42, 0.85);
+  color: #e5e7eb;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.16s ease, transform 0.16s ease, border-color 0.16s ease;
+}
+
+.pager-btn:hover:not(:disabled) {
+  background: rgba(37, 99, 235, 0.4);
+  border-color: rgba(129, 140, 248, 0.9);
+  transform: translateY(-1px);
+}
+
+.pager-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.pager-info {
+  opacity: 0.85;
 }
 </style>

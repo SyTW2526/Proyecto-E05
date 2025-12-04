@@ -38,5 +38,10 @@ export const useAccountStore = defineStore("account", {
       this.grupos.push(Grupo.fromDTO(data.group));
       return data.group;
     },
+    
+    async cancelSubscription(sub: Suscripcion) {
+      await accountService.leaveGroup(sub.idGrupo);
+      await this.userData();
+    },
   },
 });

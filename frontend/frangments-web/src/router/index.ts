@@ -20,7 +20,7 @@ const router = createRouter({
     { path: "/dashboard", name: "dashboard", component: DashboardView, meta: { requiresAuth: true } },
     { path: "/login", name: "login", component: LoginView, meta: { guestOnly: true } },
     { path: "/register", name: "register", component: RegisterView, meta: { guestOnly: true } },
-    { path: "/cuenta", name: "cuenta", component: CuentaView, meta: { requiresAuth: true } },
+    { path: "/cuenta", name: "cuenta", component: CuentaView, meta: { requiresAuth: true, hideNavbar: true } },
     { path: "/buscador", name: "buscador", component: BuscadorView, meta: { requiresAuth: true } },
     { path: "/ofertar", name: "ofertar", component: OfertarView, meta: { requiresAuth: true } },
     { path: "/admin", name: "admin", component: AdminView, meta: { requiresAuth: true, requiresAdmin: true } },

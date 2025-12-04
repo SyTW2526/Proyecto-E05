@@ -91,7 +91,9 @@ export default {
 <style scoped>
 /* === Página general === */
 .faq-page {
+  background: linear-gradient(120deg, #e0f2ff, #a2b8d9, #1e293b);
   padding: 2rem;
+  color: #0f172a;
   position: relative;
   min-height: 100vh;
   color: #e2e8f0;

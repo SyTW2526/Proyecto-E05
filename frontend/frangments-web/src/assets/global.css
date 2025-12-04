@@ -5,179 +5,288 @@
   --primary: #2745f0;
   --primary-dark: #1d34b8;
   --secondary: #64748b;
+
   --background: #f6f8fc;
   --card-bg: #ffffff;
+
   --text: #1e293b;
   --text-light: #475569;
-  --danger: #e11d48;
-  --success: #16a34a;
 
   --radius: 12px;
   --shadow: 0 4px 12px rgba(0,0,0,0.08);
+
+  /* Fondo general */
+  --background-gradient: linear-gradient(120deg, #e0f2ff, #a2b8d9, #1e293b);
 }
 
 /* ------------------------------
-   RESET / BASE GENERAL
+   BASE GENERAL
 ------------------------------ */
+html, body, #app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 body {
-  font-family: Inter, system-ui, sans-serif;
-  background: var(--background);
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--background-gradient);
+  background-attachment: fixed;
+  background-size: cover;
   color: var(--text);
   margin: 0;
 }
 
-/* Suave fade-in */
-.fade-in {
-  animation: fadeIn 0.5s ease forwards;
+/* Ocultar scrollbars globalmente (lo que tenías en main.css) */
+html, body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ------------------------------
-   TARJETAS
------------------------------- */
-.ui-card {
-  background: var(--card-bg);
-  padding: 1.5rem;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.ui-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+.dashboard {
+  flex: 1;
 }
 
 /* ------------------------------
-   INPUTS
+   UTILIDADES DE TARJETA / PANEL
 ------------------------------ */
-.ui-input {
-  width: 100%;
-  padding: 0.7rem 0.9rem;
-  border: 1px solid #cbd5e1;
-  border-radius: var(--radius);
-  font-size: 0.95rem;
-  transition: border-color 0.25s ease;
+
+/* Card genérica con glassmorphism */
+.card {
+  background: radial-gradient(circle at top left,
+              rgba(15, 23, 42, 0.95),
+              rgba(15, 23, 42, 0.75));
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  padding: 1.7rem 1.8rem;
+  border-radius: 1.4rem;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.7);
+  color: #f9fafb;
 }
 
-.ui-input:focus {
-  border-color: var(--primary);
-  outline: none;
+.card-radial {
+  background: radial-gradient(circle at left, #2563eb, #020617 72%);
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.7);
 }
 
-/* ------------------------------
-   BOTONES CORPORATIVOS
------------------------------- */
-.ui-btn {
-  display: inline-flex;
+.card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.card-main-header {
+  display: flex;
+  gap: 1rem;
   align-items: center;
-  gap: 6px;
-  padding: 0.6rem 1.1rem;
-  border-radius: var(--radius);
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: background 0.25s ease, transform 0.25s ease;
 }
 
-.ui-btn:hover {
-  transform: translateY(-3px);
+.card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: radial-gradient(circle at 30% 20%, #22d3ee, #4f46e5);
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.6);
 }
 
-.ui-btn-primary {
-  background: var(--primary);
-  color: white;
+.card-icon.secondary-icon {
+  background: radial-gradient(circle at 30% 20%, #a855f7, #ec4899);
+  box-shadow: 0 0 25px rgba(236, 72, 153, 0.6);
 }
 
-.ui-btn-primary:hover {
-  background: var(--primary-dark);
-}
-
-.ui-btn-secondary {
-  background: var(--secondary);
-  color: white;
-}
-
-.ui-btn-secondary:hover {
-  background: #475569;
-}
-
-.ui-btn-danger {
-  background: var(--danger);
-  color: white;
-}
-
-.ui-btn-danger:hover {
-  background: #be123c;
-}
-
-.ui-btn-success {
-  background: var(--success);
-  color: white;
-}
-
-.ui-btn-success:hover {
-  background: #15803d;
-}
-
-/* Botón pequeño */
-.ui-btn-sm {
-  padding: 0.45rem 0.9rem;
-  font-size: 0.85rem;
-}
-
-/* ------------------------------
-   TITULARES
------------------------------- */
-.ui-title {
-  font-size: 1.7rem;
+.card-title {
+  font-size: 1.35rem;
   font-weight: 700;
-  margin-bottom: 0.4rem;
 }
 
-.ui-subtitle {
-  color: var(--text-light);
-  font-size: 0.95rem;
-  margin-bottom: 1.5rem;
-}
-
-/* ------------------------------
-   CONTENEDORES
------------------------------- */
-.ui-section {
-  width: 100%;
-  max-width: 900px;
-  margin-bottom: 1.6rem;
-}
-
-/* LISTAS */
-.ui-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.ui-list li {
-  background: #f1f5f9;
-  padding: 0.75rem;
-  margin-bottom: 0.5rem;
-  border-radius: var(--radius);
+.card-text {
+  opacity: 0.9;
   font-size: 0.92rem;
 }
 
-.footer {
-  margin-top: 20px;
-  padding: 20px;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #777;
+.card-main-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
 }
 
+/* Píldoras reutilizables */
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.pill {
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.7);
+}
+
+.pill-soft {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.7);
+}
+
+/* Panel oscuro tipo .plataformas */
+.panel-glass {
+  background: rgba(15, 23, 42, 0.8);
+  padding: 1.6rem 1.5rem 1.8rem;
+  border-radius: 1.4rem;
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(148, 163, 184, 0.33);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.85);
+  color: #f9fafb;
+}
+
+.panel-dark {
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 1.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.33);
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  backdrop-filter: blur(16px);
+}
+
+/* Tarjetas de items dentro del panel (plataformas, etc.) */
+.item-card {
+  background: radial-gradient(circle at top left,
+              rgba(30, 64, 175, 0.9),
+              rgba(15, 23, 42, 0.95));
+  padding: 0.9rem 1rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Halo de luz al hover */
+.item-card::before {
+  content: "";
+  position: absolute;
+  inset: -60%;
+  background: radial-gradient(circle at top left,
+              rgba(96, 165, 250, 0.25),
+              transparent 60%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.item-card:hover::before {
+  opacity: 1;
+}
+
+/* Logo redondo genérico */
+.item-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 18px rgba(248, 250, 252, 0.45);
+}
+
+/* ========= BOTONES “BRILLANTES” REUTILIZABLES ========= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 0.8rem;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: 0.25s;
+  background: rgba(15, 23, 42, 0.4);
+  color: #e5e7eb;
+  backdrop-filter: blur(10px);
+}
+
+.btn.small {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+  border-radius: 999px;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #4f46e5, #22d3ee);
+  color: white;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.7);
+}
+
+.btn.primary:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn.ghost {
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  color: #e5e7eb;
+}
+
+.btn.ghost:hover {
+  background: rgba(15, 23, 42, 0.7);
+  border-color: #e5e7eb;
+}
+
+/* ========= EFECTO FLOTANTE ========= */
+.float {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.float:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.8);
+  border-color: rgba(129, 140, 248, 0.8);
+}
+
+/* ========= ANIMACIONES ========= */
+.animate-fade {
+  animation: fadeIn 0.4s ease;
+}
+.animate-fade-delayed {
+  animation: fadeIn 0.6s ease;
+}
+.animate-fade-delayed2 {
+  animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========= BACK BUTTON GLOBAL ========= */
 .back-button-container {
   position: absolute;
   top: 20px;
@@ -187,7 +296,6 @@ body {
   width: auto;
 }
 
-/* Volver */
 .btn.back {
   background: rgba(15, 23, 42, 0.85);
   color: #e5e7eb;
@@ -202,3 +310,24 @@ body {
   transform: translateX(-2px);
   box-shadow: 0 14px 26px rgba(15, 23, 42, 0.6);
 }
+
+/* FOOTER GLOBAL */
+.footer {
+  margin-top: 0;              
+  padding: 1rem 0 2rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #e5e7eb;
+  background: transparent;    
+}
+
+
+/* Envoltorio estándar de página */
+.page {
+  min-height: 100vh;
+  padding: 2.5rem 1.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
