@@ -2,19 +2,25 @@
   <nav class="navbar-overlay">
     <div class="nav-container">
       
+      <!-- BOTÓN CONFIGURACIÓN (TUERCA) -->
       <button class="btn-hamburger" @click.stop="toggleMenu">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon-menu">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        <svg xmlns="http://www.w3.org/2000/svg"
+             fill="none" viewBox="0 0 24 24"
+             stroke-width="1.8" stroke="currentColor"
+             class="icon-menu">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.89 3.31.877 2.42 2.42a1.724 1.724 0 0 0 1.065 2.573c1.757.426 1.757 2.924 0 3.35a1.724 1.724 0 0 0-1.065 2.572c.89 1.544-.877 3.311-2.42 2.421a1.724 1.724 0 0 0-2.573 1.065c-.426 1.757-2.924 1.757-3.35 0a1.724 1.724 0 0 0-2.573-1.065c-1.543.89-3.31-.877-2.42-2.421a1.724 1.724 0 0 0-1.065-2.572c-1.757-.426-1.757-2.924 0-3.35a1.724 1.724 0 0 0 1.065-2.573c-.89-1.543.877-3.31 2.42-2.42.897.517 2.047.9 2.573-1.066z" />
+          <circle cx="12" cy="12" r="3.25"></circle>
         </svg>
+
         <span v-if="alertasNoVistas > 0" class="dot-badge"></span>
       </button>
 
+      <!-- MENÚ DESPLEGABLE -->
       <div v-if="menuAbierto" class="menu-dropdown animate-in" @click.stop>
         
         <div class="menu-header">
-          <span class="user-name">{{ auth.nombre || "Usuario" }}
-            <br></br>
-          </span>
+          <span class="user-name">{{ auth.nombre || "Usuario" }}</span>
           <span class="user-role">{{ auth.user?.tipo === 'admin' ? 'Administrador' : 'Miembro' }}</span>
         </div>
 
@@ -28,21 +34,24 @@
 
           <div v-if="verNotificacionesEnMenu" class="alerts-panel">
             <div v-if="alertas.length === 0" class="empty-msg">No hay novedades</div>
+
             <ul v-else class="alerts-list">
-              <li v-for="(a, i) in alertas" :key="i" :class="{ 'new': !a.vista }">
+              <li v-for="(a, i) in alertas" :key="i" :class="{ new: !a.vista }">
                 {{ a.mensaje }}
               </li>
             </ul>
+
             <button class="link-btn" @click="irAlertas">Ver todas</button>
           </div>
         </div>
 
         <button class="menu-item" @click="irCuenta">👤 Mi cuenta</button>
         <button v-if="auth.user?.tipo === 'admin'" class="menu-item" @click="irAdmin">🛡️ Admin</button>
-        
+
         <hr class="divider">
-        
+
         <button class="menu-item text-danger" @click="logout">🚪 Cerrar sesión</button>
+
       </div>
 
       <div v-if="menuAbierto" class="overlay-close" @click="menuAbierto = false"></div>
