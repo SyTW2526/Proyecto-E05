@@ -14,7 +14,7 @@ import alertasRouter from "../modules/alertas/alertas.router"
 const router = Router();
 
 // === USERS ===
-router.use("/users",authMiddleware , userRouter);
+router.use("/users", userRouter);
 router.get("/me", authMiddleware, userController.me);
 router.get("/user/data", authMiddleware, userController.getUserData); 
 
