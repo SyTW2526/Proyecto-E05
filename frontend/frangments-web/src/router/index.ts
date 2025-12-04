@@ -11,6 +11,7 @@ import PlataformaPagoView from "@/views/PlataformaPagoView.vue";
 import PlanesPlataformaView from "@/views/PlanesPlataformaView.vue";
 import AlertasView from "@/views/AlertasView.vue";
 import FAQView from "@/views/FAQView.vue";
+import QuejasView from "@/views/QuejasView.vue";
 import { useAuthStore } from "@/stores/auth";
 
 const router = createRouter({
@@ -31,7 +32,8 @@ const router = createRouter({
       path: "/plataformas/:id_plataforma/:plataforma",
       name: "planes-plataforma",
       component: PlanesPlataformaView, meta: { requiresAuth: true }
-    }
+    }, 
+    { path: "/quejas", name: "quejas", component: QuejasView, meta: { requiresAuth: true } },
   ],
 });
 

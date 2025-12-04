@@ -134,7 +134,6 @@ watch(idPlataforma, cargar);
 </script>
 
 
-
 <style scoped>
 .planes-plataforma {
   min-height: 100vh;

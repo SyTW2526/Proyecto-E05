@@ -1,6 +1,8 @@
 <template>
   <div class="faq-page">
-    
+    <button class="btn back-btn" @click="irDashboard">
+      ⬅ Volver
+    </button>
     <!-- WATERMARK (opcional para estilo Dashboard) -->
     <div class="watermark"></div>
 
@@ -28,12 +30,6 @@
         </div>
       </div>
     </section>
-
-    <!-- BOTÓN VOLVER -->
-    <button class="btn primary back-btn" @click="irDashboard">
-      ⬅ Volver
-    </button>
-
   </div>
 </template>
 
@@ -107,11 +103,12 @@ export default {
 
 .faq-title {
   font-size: 2rem;
-  color: #c7d2fe;
+  color: #000;
   text-shadow: 0 0 8px rgba(129, 140, 248, 0.45);
 }
 
 .faq-subtitle {
+  color: #000;
   opacity: 0.8;
 }
 
@@ -161,11 +158,23 @@ export default {
 
 /* === Botón Volver === */
 .back-btn {
-  margin: 2rem auto 0;
-  display: block;
-  padding: 0.7rem 1.3rem;
-  border-radius: 0.9rem;
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  background: #0f172a !important; 
+  color: #fff !important;
   font-weight: 600;
+  padding: 0.6rem 1rem;
+  border-radius: 0.8rem;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.back-btn:hover {
+  background: #1e293b;
+  transform: translateY(-2px);
 }
 
 /* Animaciones coherentes con Dashboard */

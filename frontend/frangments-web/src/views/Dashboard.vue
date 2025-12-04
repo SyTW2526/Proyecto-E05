@@ -5,6 +5,7 @@
     <header class="topbar animate-fade">
       
       <div class="header-left">
+        <br></br><br></br><br></br>
         <p class="subtitle">
           Bienvenido de vuelta, {{ auth.nombre || "Jefe" }} ¿qué tienes planeado para hoy?
         </p>
@@ -98,6 +99,7 @@
     </section>
 
     <div class="bottom right">
+      <button class="btn small primary" @click="irQuejas">✉️</button>
       <button class="btn small primary" @click="irFaq">❓</button>
     </div>
   </div>
@@ -177,6 +179,8 @@ function irBuscador() { router.push({ name: "buscador" }); }
 function irOfertas() { router.push({ name: "ofertar" }); }
 function verPlataforma(id: number) { router.push({ name: "plataforma-detalle", params: { id } }); }
 function irFaq() { router.push({ name: "faq" }); }
+function irQuejas() { router.push({ name: "quejas" }); }
+
 </script>
 
 <style>
