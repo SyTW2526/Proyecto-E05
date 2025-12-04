@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { planesPlataformaService } from "@/api/planesPlataforma.service";
 import type { PlanPlataformaDTO } from "@/domain/planesPlataforma";
+import { useAlertStore } from "./alertas";
 
 export const usePlanesPlataformaStore = defineStore("planesPlataforma", {
   state: () => ({
@@ -33,8 +34,10 @@ export const usePlanesPlataformaStore = defineStore("planesPlataforma", {
     },
 
     async unirse(id_plan: number) {
+      const alertStore = useAlertStore();
       try {
         const data = await planesPlataformaService.unirseAPlan(id_plan);
+        await alertStore.fetchAlertas();
         return data; // { message, id_grupo }
       } catch (e: any) {
         throw new Error(

@@ -4,7 +4,7 @@
     <!-- HEADER -->
     <header class="header">
       <h2 class="title">Panel de Administración</h2>
-      <p class="subtitle">Gestión de usuarios, grupos y ofertas</p>
+      <p class="subtitle">Gestión de usuarios, grupos, ofertas y quejas</p>
     </header>
 
     <!-- BOTONES TIPO DASHBOARD -->
@@ -32,6 +32,14 @@
       >
         Ofertas
       </button>
+
+      <button
+        class="btn-glossy"
+        :class="{ active: seccionActiva === 'quejas' }"
+        @click="seccionActiva = 'quejas'"
+      >
+        Quejas
+      </button>
     </nav>
 
     <!-- SECCIÓN USUARIOS -->
@@ -55,13 +63,6 @@
               <button class="btn-sm danger" @click="eliminarUsuario(user.id_usuario)">
                 🗑 Eliminar
               </button>
-              <button
-                v-if="user.tipo !== 'admin'"
-                class="btn-sm success"
-                @click="promoverUsuario(user.id_usuario)"
-              >
-                ⭐ Promover a admin
-              </button>
             </td>
           </tr>
         </tbody>
@@ -74,11 +75,11 @@
         >
           ‹ Anterior
         </button>
-      
+
         <span class="pager-info">
           Página {{ pageUsuarios }} de {{ totalPagesUsuarios }}
         </span>
-      
+
         <button
           class="pager-btn"
           :disabled="pageUsuarios === totalPagesUsuarios"
@@ -101,7 +102,7 @@
         </li>
         <li v-if="grupos.length === 0">No hay grupos registrados.</li>
       </ul>
-        <div class="pagination" v-if="totalPagesGrupos > 1">
+      <div class="pagination" v-if="totalPagesGrupos > 1">
         <button
           class="pager-btn"
           :disabled="pageGrupos === 1"
@@ -109,11 +110,11 @@
         >
           ‹ Anterior
         </button>
-      
+
         <span class="pager-info">
           Página {{ pageGrupos }} de {{ totalPagesGrupos }}
         </span>
-      
+
         <button
           class="pager-btn"
           :disabled="pageGrupos === totalPagesGrupos"
@@ -135,12 +136,12 @@
             <small>Creada por {{ oferta.usuario }} ({{ oferta.grupo }})</small>
           </div>
           <button class="btn-sm danger" @click="eliminarOferta(oferta.id)">
-             🗑 Eliminar
+            🗑 Eliminar
           </button>
         </li>
         <li v-if="ofertas.length === 0">No hay ofertas activas.</li>
       </ul>
-        <div class="pagination" v-if="totalPagesOfertas > 1">
+      <div class="pagination" v-if="totalPagesOfertas > 1">
         <button
           class="pager-btn"
           :disabled="pageOfertas === 1"
@@ -148,11 +149,11 @@
         >
           ‹ Anterior
         </button>
-      
+
         <span class="pager-info">
           Página {{ pageOfertas }} de {{ totalPagesOfertas }}
         </span>
-      
+
         <button
           class="pager-btn"
           :disabled="pageOfertas === totalPagesOfertas"
@@ -162,26 +163,104 @@
         </button>
       </div>
     </section>
+
+    <!-- SECCIÓN QUEJAS -->
+      <section v-if="seccionActiva === 'quejas'" class="panel">
+        <h3>Quejas de usuarios</h3>
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Grupo</th>
+              <th>Título</th>
+              <th>Mensaje</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="q in paginatedQuejas" :key="q.id">
+              <td>#{{ q.id }}</td>
+              <td>{{ q.nombreUsuario || q.mailUsuario || ('ID ' + q.idUsuario) }}</td>
+              <td>
+                <span v-if="q.nombreGrupo">{{ q.nombreGrupo }}</span>
+                <span v-else-if="q.idGrupo">Grupo #{{ q.idGrupo }}</span>
+                <span v-else>—</span>
+              </td>
+              <td>{{ q.titulo }}</td>
+              <td class="mensaje-cell" :title="q.mensaje">
+                {{ q.mensaje }}
+              </td>
+              <td>{{ q.estado }}</td>
+              <td>{{ formatFecha(q.fechaCreacion) }}</td>
+              <td>
+                <button
+                  v-if="q.estado === 'pendiente'"
+                  class="btn-sm success"
+                  @click="cambiarEstadoQueja(q, 'resuelta')"
+                >
+                  Marcar resuelta
+                </button>
+                <button
+                  v-else
+                  class="btn-sm"
+                  @click="cambiarEstadoQueja(q, 'pendiente')"
+                >
+                  ↩ Volver a pendiente
+                </button>
+              </td>
+            </tr>
+            <tr v-if="quejas.length === 0">
+              <td colspan="8">No hay quejas registradas.</td>
+            </tr>
+          </tbody>
+        </table>
+      <div class="pagination" v-if="totalPagesQuejas > 1">
+        <button
+          class="pager-btn"
+          :disabled="pageQuejas === 1"
+          @click="goToPageQuejas(-1)"
+        >
+          ‹ Anterior
+        </button>
+
+        <span class="pager-info">
+          Página {{ pageQuejas }} de {{ totalPagesQuejas }}
+        </span>
+
+        <button
+          class="pager-btn"
+          :disabled="pageQuejas === totalPagesQuejas"
+          @click="goToPageQuejas(1)"
+        >
+          Siguiente ›
+        </button>
+      </div>
+    </section>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useAdminStore } from "@/stores/admin";
+import { useQuejasStore } from "@/stores/queja";
 
 const router = useRouter();
 const auth = useAuthStore();
 const admin = useAdminStore();
+const quejasStore = useQuejasStore();
 
 const seccionActiva = ref("usuarios");
 
-// Computeds para NO tocar tu template
+// Computeds
 const usuarios = computed(() => admin.users);
 const grupos = computed(() => admin.grupos);
 const ofertas = computed(() => admin.ofertas);
+const quejas = computed(() => quejasStore.quejas);
 
 onMounted(async () => {
   try {
@@ -189,12 +268,13 @@ onMounted(async () => {
     if (!auth.isAdmin) return router.push({ name: "dashboard" });
 
     await admin.loadAll();
+    await quejasStore.fetchQuejas(); // carga todas las quejas al entrar al panel
   } catch (err) {
     console.error("Error al cargar datos de administración:", err);
   }
 });
 
-// === Acciones (mismas que ya tenías, pero delegando en el store) ===
+// === Acciones admin ===
 async function eliminarUsuario(id_usuario: number) {
   if (!confirm("¿Seguro que deseas eliminar este usuario?")) return;
   await admin.eliminarUsuario(id_usuario);
@@ -214,6 +294,18 @@ async function eliminarOferta(id: number) {
   await admin.eliminarOferta(id);
 }
 
+async function cambiarEstadoQueja(q: any, estado: "pendiente" | "resuelta") {
+  await quejasStore.marcarEstado(q, estado);
+}
+
+function formatFecha(fecha: string) {
+  try {
+    return new Date(fecha).toLocaleString();
+  } catch {
+    return fecha;
+  }
+}
+
 function volverDashboard() {
   router.push({ name: "dashboard" });
 }
@@ -224,6 +316,7 @@ const pageSize = 10;
 const pageUsuarios = ref(1);
 const pageGrupos = ref(1);
 const pageOfertas = ref(1);
+const pageQuejas = ref(1);
 
 // USUARIOS
 const totalPagesUsuarios = computed(() =>
@@ -252,6 +345,15 @@ const paginatedOfertas = computed(() => {
   return ofertas.value.slice(start, start + pageSize);
 });
 
+// QUEJAS
+const totalPagesQuejas = computed(() =>
+  Math.max(1, Math.ceil(quejas.value.length / pageSize))
+);
+const paginatedQuejas = computed(() => {
+  const start = (pageQuejas.value - 1) * pageSize;
+  return quejas.value.slice(start, start + pageSize);
+});
+
 // Helpers cambiar página
 function goToPageUsuarios(delta: number) {
   pageUsuarios.value = Math.min(
@@ -274,6 +376,12 @@ function goToPageOfertas(delta: number) {
   );
 }
 
+function goToPageQuejas(delta: number) {
+  pageQuejas.value = Math.min(
+    totalPagesQuejas.value,
+    Math.max(1, pageQuejas.value + delta)
+  );
+}
 </script>
 
 <style scoped>
@@ -596,4 +704,15 @@ tbody tr:hover {
 .pager-info {
   opacity: 0.85;
 }
+
+.mensaje-cell {
+  max-width: 600px;        /* o el ancho que quieras */
+  white-space: normal;     /* permite saltos de línea */
+  word-break: break-word;  /* rompe palabras largas si hace falta */
+  overflow: visible;
+  text-overflow: unset;
+  vertical-align: top;     /* para que la fila quede bonita si es muy largo */
+}
+
+
 </style>

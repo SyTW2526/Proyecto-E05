@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { accountService } from "@/api/cuenta.service";
 import { Grupo } from "@/domain/grupo";
 import { Suscripcion } from "@/domain/suscripcion";
+import { useAlertStore } from "./alertas";
 
 type AccountState = {
   saldo: number;
@@ -33,15 +34,18 @@ export const useAccountStore = defineStore("account", {
       }
     },
     async createGroup(nombre: string) {
+      const alertStore = useAlertStore();
       const data = await accountService.createGroup(nombre);
-      // añadimos el grupo ya convertido a dominio
       this.grupos.push(Grupo.fromDTO(data.group));
+      await alertStore.fetchAlertas();
       return data.group;
     },
     
     async cancelSubscription(sub: Suscripcion) {
+      const alertStore = useAlertStore();
       await accountService.leaveGroup(sub.idGrupo);
       await this.userData();
+      await alertStore.fetchAlertas();
     },
   },
 });

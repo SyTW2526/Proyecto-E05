@@ -6,6 +6,7 @@ import grupoRouter from "../modules/grupo/grupo.router";
 import miembroGrupoRouter from "../modules/miembro_grupo/miembro_grupo.router";
 import carteraRouter from "../modules/cartera/cartera.router";
 import adminRouter from "../modules/adminfuncs/admin.router"; 
+import { quejaRouter } from "../modules/queja/queja.router";
 import { billingController } from "../modules/billing/billing.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
 import { userController } from "../modules/users/user.controller";
@@ -14,13 +15,9 @@ import alertasRouter from "../modules/alertas/alertas.router"
 const router = Router();
 
 // === USERS ===
-// === USERS ===
-router.use("/users", userRouter);          // 👈 SIN authMiddleware aquí
-
-// Si quieres mantener estas rutas "planas", vale:
+router.use("/users", userRouter);         
 router.get("/me", authMiddleware, userController.me);
 router.get("/user/data", authMiddleware, userController.getUserData);
-
 
 // === PLATAFORMA ===
 router.use("/plataforma", plataformaRouter);
@@ -42,7 +39,11 @@ router.use("/admin", adminRouter);
 
 router.use("/alertas", alertasRouter);
 
+// === PROCESOS ===
 router.get("/jobs/run-billing", billingController.run);
 router.get("/jobs/check-low-balance", billingController.checkLowBalance);
+
+// === QUEJAS ===
+router.use("/quejas", quejaRouter);
 
 export default router;
