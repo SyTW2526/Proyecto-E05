@@ -5,9 +5,9 @@
     <header class="topbar animate-fade">
       
       <div class="header-left">
-        <br></br><br></br><br></br>
-        <p class="subtitle">
-          Bienvenido de vuelta, {{ auth.nombre || "Jefe" }} ¿qué tienes planeado para hoy?
+        <p class="welcome-text">
+          Bienvenido de vuelta, <span class="user-highlight">{{ auth.nombre || "Jefe" }}</span>.
+          <span class="welcome-sub">¿Qué tienes planeado para hoy?</span>
         </p>
       </div>
 
@@ -20,37 +20,46 @@
     </header>
 
     <section class="cards animate-fade-delayed">
+      
       <article class="card float card-main">
-        <div class="card-main-header">
-          <div class="card-icon">🔍</div>
-          <div>
-            <h2 class="card-title">Buscar planes</h2>
-            <p class="card-text">Encuentra suscripciones compartidas activas.</p>
+        <div class="card-body-compact">
+          <div class="card-main-header">
+            <div class="card-icon-wrapper">
+              <div class="card-icon">🔍</div>
+            </div>
+            <div class="card-content">
+              <h2 class="card-title">Buscar planes</h2>
+              <p class="card-text">Encuentra suscripciones compartidas activas y únete al ahorro.</p>
+            </div>
           </div>
-        </div>
-        <div class="card-main-footer">
-          <div class="pills">
-            <span class="pill">Planes verificados</span>
-            <span class="pill pill-soft">Pagos repartidos</span>
+          <div class="card-main-footer-compact">
+            <div class="pills">
+              <span class="pill">Planes verificados</span>
+              <span class="pill pill-soft">Pagos repartidos</span>
+            </div>
+            <button class="btn small primary glow-effect" @click="irBuscador">Explorar planes</button>
           </div>
-          <button class="btn small primary" @click="irBuscador">Explorar planes</button>
         </div>
       </article>
 
       <article class="card float card-main">
-        <div class="card-main-header">
-          <div class="card-icon secondary-icon">➕</div>
-          <div>
-            <h2 class="card-title">Crear planes</h2>
-            <p class="card-text">Publica tu oferta y comparte gastos.</p>
+        <div class="card-body-compact">
+          <div class="card-main-header">
+            <div class="card-icon-wrapper">
+              <div class="card-icon secondary-icon">➕</div>
+            </div>
+            <div class="card-content">
+              <h2 class="card-title">Crear planes</h2>
+              <p class="card-text">Publica tu oferta, gestiona tu grupo y comparte gastos fácilmente.</p>
+            </div>
           </div>
-        </div>
-        <div class="card-main-footer">
-          <div class="pills">
-            <span class="pill">Control total</span>
-            <span class="pill pill-soft">Cupos limitados</span>
+          <div class="card-main-footer-compact">
+            <div class="pills">
+              <span class="pill">Control total</span>
+              <span class="pill pill-soft">Cupos limitados</span>
+            </div>
+            <button class="btn small primary glow-effect" @click="irOfertas">Crear plan</button>
           </div>
-          <button class="btn small primary" @click="irOfertas">Crear plan</button>
         </div>
       </article>
     </section>
@@ -59,7 +68,7 @@
       <div class="plat-header">
         <div>
           <h3 class="plat-title">Plataformas disponibles</h3>
-          <p class="plat-subtitle">Gestiona tus cuentas compartidas desde un único panel.</p>
+          <p class="plat-subtitle">Gestiona tus cuentas compartidas desde un único panel centralizado.</p>
         </div>
       </div>
 
@@ -83,8 +92,8 @@
             </div>
 
             <div class="plat-actions">
-              <button class="btn small ghost" @click.stop="toggleDetalles(plataforma.id)">
-                {{ idVisible === plataforma.id ? 'Ocultar' : 'Ver detalles' }}
+              <button class="btn x-small ghost" @click.stop="toggleDetalles(plataforma.id)">
+                {{ idVisible === plataforma.id ? 'Ocultar' : 'Detalles' }}
               </button>
             </div>
 
@@ -98,9 +107,16 @@
       </div>
     </section>
 
-    <div class="bottom right">
-      <button class="btn small primary" @click="irQuejas">✉️</button>
-      <button class="btn small primary" @click="irFaq">❓</button>
+    <div class="bottom-dock animate-fade-delayed2">
+      <button class="dock-btn primary" @click="irQuejas" title="Enviar Queja">
+        <span class="dock-icon">✉️</span>
+        <span class="dock-label desktop-only">Buzón</span>
+      </button>
+      <div class="dock-separator"></div>
+      <button class="dock-btn secondary" @click="irFaq" title="Preguntas Frecuentes">
+        <span class="dock-icon">❓</span>
+        <span class="dock-label desktop-only">Ayuda</span>
+      </button>
     </div>
   </div>
 </template>
@@ -138,12 +154,12 @@ const getLogo = (nombre: string) => logoMap[nombre] ?? defaultLogo;
 
 const plataformas = ref([
   { id: 1, nombre: "HBO Max", descripcion: "Series y pelis de HBO, Max Originals y más." },
-  { id: 2, nombre: "Spotify", descripcion: "Música sin anuncios." },
+  { id: 2, nombre: "Spotify", descripcion: "Música sin anuncios para todos." },
   { id: 3, nombre: "Disney+", descripcion: "Disney, Marvel, Star Wars y Pixar." },
-  { id: 4, nombre: "Xbox Game Pass", descripcion: "Juegos ilimitados." },
-  { id: 5, nombre: "Canva Pro", descripcion: "Diseño premium." },
-  { id: 6, nombre: "Crunchyroll", descripcion: "Anime en simulcast." },
-  { id: 7, nombre: "Prime Video", descripcion: "Envíos y Prime Video." },
+  { id: 4, nombre: "Xbox Game Pass", descripcion: "Juegos ilimitados en consola y PC." },
+  { id: 5, nombre: "Canva Pro", descripcion: "Diseño premium colaborativo." },
+  { id: 6, nombre: "Crunchyroll", descripcion: "Anime en simulcast y sin ads." },
+  { id: 7, nombre: "Prime Video", descripcion: "Envíos rápidos y streaming." },
 ]);
 
 // Carrusel
@@ -183,32 +199,32 @@ function irQuejas() { router.push({ name: "quejas" }); }
 
 </script>
 
-<style>
-/* === CONTENEDOR GENERAL DASHBOARD (con brillo) === */
+<style scoped>
+/* === CONFIGURACIÓN BASE === */
 .dashboard {
   position: relative;
   min-height: 100vh;
-  padding: 1.25rem 2rem 2rem;
+  padding: 2rem 3rem 6rem; /* Padding inferior para el dock */
   background: linear-gradient(120deg, #e0f2ff, #a2b8d9, #1e293b);
   color: #f9fafb;
+  /* Fuente principal (se hereda en todos los textos salvo que se especifique otra) */
   font-family: "Inter", system-ui, -apple-system, sans-serif;
-
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
-  overflow: hidden;
+  gap: 2.5rem;
+  overflow-x: hidden;
 }
 
-/* Capa de “brillo” suave por encima del gradient */
 .watermark {
   position: absolute;
   inset: -20%;
   background:
-    radial-gradient(circle at 15% 0%, rgba(255,255,255,0.35), transparent 55%),
-    radial-gradient(circle at 80% 100%, rgba(59,130,246,0.4), transparent 60%);
-  opacity: 0.8;
+    radial-gradient(circle at 10% 10%, rgba(255,255,255,0.3), transparent 50%),
+    radial-gradient(circle at 90% 90%, rgba(59,130,246,0.3), transparent 50%);
+  opacity: 0.6;
   pointer-events: none;
   z-index: 0;
+  filter: blur(40px);
 }
 
 .dashboard > *:not(.watermark) {
@@ -221,22 +237,40 @@ function irQuejas() { router.push({ name: "quejas" }); }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .header-left {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left; 
 }
 
-.subtitle {
-  font-size: 1.05rem;
-  font-weight: 500;
-  color: rgba(15, 23, 42, 0.8);
-  letter-spacing: 0.3px;
-  text-shadow: 0 1px 2px rgba(255,255,255,0.6);
-  backdrop-filter: blur(1px);
+/* TEXTO DE BIENVENIDA UNIFICADO (Fuente Inter) */
+.welcome-text {
+  /* Eliminamos 'Playfair Display' para que herede "Inter" */
+  font-size: 1.4rem;
+  font-weight: 600; /* Un poco de peso para que destaque similar a los títulos */
+  color: #1e293b;
   margin: 0;
+  line-height: 1.3;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+}
+
+.user-highlight {
+  font-weight: 800; /* Extra bold para el nombre */
+  color: #2563eb;
+}
+
+.welcome-sub {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: #475569;
+  margin-top: 0.3rem;
+  /* Hereda Inter */
 }
 
 .header-center {
@@ -246,353 +280,207 @@ function irQuejas() { router.push({ name: "quejas" }); }
 }
 
 .header-logo {
-  width: 200px;
+  width: 180px;
   height: auto;
-  opacity: 0.9;
-  filter: drop-shadow(0 8px 22px rgba(15,23,42,0.4));
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+  transition: transform 0.3s ease;
 }
+.header-logo:hover { transform: scale(1.05); }
 
-.header-right-spacer {
-  flex: 1;
-}
+.header-right-spacer { flex: 1; }
+
 
 /* === CARDS PRINCIPALES === */
 .cards {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
 }
 
 .card {
-  flex: 1;
-  min-width: 260px;
-  background: radial-gradient(circle at top left,
-              rgba(15, 23, 42, 0.95),
-              rgba(15, 23, 42, 0.75));
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  padding: 1.7rem 1.8rem;
-  border-radius: 1.4rem;
-  backdrop-filter: blur(16px);
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.7);
-}
-
-.card-main {
+  background: radial-gradient(circle at top left, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  border-radius: 1.5rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
+  min-height: auto;
+}
+
+.card-body-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
 }
 
 .card-main-header {
   display: flex;
-  gap: 1rem;
-  align-items: center;
+  gap: 1.2rem;
+  align-items: flex-start;
 }
 
+.card-icon-wrapper { flex-shrink: 0; }
+
 .card-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
+  width: 56px;
+  height: 56px;
+  border-radius: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  background: radial-gradient(circle at 30% 20%, #22d3ee, #4f46e5);
-  box-shadow: 0 0 25px rgba(56, 189, 248, 0.6);
+  font-size: 1.8rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
 }
 
 .secondary-icon {
-  background: radial-gradient(circle at 30% 20%, #a855f7, #ec4899);
-  box-shadow: 0 0 25px rgba(236, 72, 153, 0.6);
+  background: linear-gradient(135deg, #d946ef, #a855f7);
+  box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4);
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .card-title {
-  font-size: 1.35rem;
+  margin: 0;
+  font-size: 1.5rem;
   font-weight: 700;
+  color: #fff;
 }
 
 .card-text {
-  opacity: 0.9;
-  font-size: 0.92rem;
+  margin: 0;
+  font-size: 0.95rem;
+  color: #94a3b8;
+  line-height: 1.5;
 }
 
-.card-main-footer {
+.card-main-footer-compact {
+  margin-top: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.8rem;
   flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
+.pills { display: flex; gap: 0.5rem; }
 .pill {
-  padding: 0.25rem 0.7rem;
+  padding: 0.3rem 0.8rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(148, 163, 184, 0.7);
-}
-
-.pill-soft {
-  background: rgba(56, 189, 248, 0.12);
-  border-color: rgba(56, 189, 248, 0.7);
-}
-
-/* === BOTONES === */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 0.8rem;
-  padding: 0.6rem 1rem;
   font-weight: 600;
-  font-size: 0.9rem;
-  transition: 0.25s;
-  background: rgba(15, 23, 42, 0.4);
-  color: #e5e7eb;
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
-
-.btn.small {
-  padding: 0.4rem 0.9rem;
-  font-size: 0.82rem;
-  border-radius: 999px;
-}
-
-.btn.primary {
-  background: linear-gradient(135deg, #4f46e5, #22d3ee);
-  color: white;
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.7);
-}
-
-.btn.primary:hover {
-  filter: brightness(1.08);
-  transform: translateY(-2px) scale(1.02);
-}
-
-.btn.ghost {
-  background: transparent;
-  border: 1px solid rgba(148, 163, 184, 0.7);
-  color: #e5e7eb;
-}
-
-.btn.ghost:hover {
-  background: rgba(15, 23, 42, 0.7);
-  border-color: #e5e7eb;
+.pill-soft {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
 /* === PLATAFORMAS === */
 .plataformas {
-  background: rgba(15, 23, 42, 0.8);
-  padding: 1.6rem 1.5rem 1.8rem;
-  border-radius: 1.4rem;
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(148, 163, 184, 0.33);
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.85);
+  background: rgba(30, 41, 59, 0.7);
+  padding: 2rem 2.5rem;
+  border-radius: 1.8rem;
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
 }
+.plat-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; }
+.plat-title { margin: 0; font-size: 1.4rem; font-weight: 700; color: #fff; }
+.plat-subtitle { margin: 0.3rem 0 0; font-size: 0.95rem; color: #94a3b8; }
+.plataformas-row { display: flex; align-items: center; gap: 1.5rem; }
+.plat-nav-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); width: 40px; height: 40px; border-radius: 50%; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.2s ease; }
+.plat-nav-btn:hover:not(:disabled) { background: #2563eb; border-color: #2563eb; transform: scale(1.1); }
+.plat-nav-btn:disabled { opacity: 0.3; cursor: default; }
+.plataformas-grid { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+.plataforma-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 1rem 1.2rem; border-radius: 1.2rem; cursor: pointer; display: flex; flex-direction: column; gap: 0.8rem; transition: all 0.2s ease; position: relative; overflow: hidden; }
+.plataforma-card:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.3); transform: translateY(-5px); }
+.plat-main { display: flex; align-items: center; gap: 1rem; }
+.plat-logo { width: 48px; height: 48px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; padding: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.plat-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+.plat-name { margin: 0; font-size: 1rem; font-weight: 600; color: #fff; }
+.plat-actions { display: flex; justify-content: flex-end; }
+.plat-desc { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; }
 
-.plat-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
+/* === BOTONES GENERALES === */
+.btn { border: none; cursor: pointer; border-radius: 999px; font-weight: 600; transition: all 0.2s ease; }
+.btn.primary { background: linear-gradient(135deg, #2563eb, #06b6d4); color: white; padding: 0.6rem 1.2rem; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
+.btn.primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6); filter: brightness(1.1); }
+.btn.ghost { background: transparent; color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.4); }
+.btn.ghost:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.05); }
+.btn.small { padding: 0.5rem 1rem; font-size: 0.85rem; }
+.btn.x-small { padding: 0.3rem 0.8rem; font-size: 0.75rem; }
 
-.plat-title {
-  margin: 0;
-  font-weight: 700;
-  font-size: 1.05rem;
-}
-
-.plat-subtitle {
-  margin: 0.25rem 0 0;
-  font-size: 0.85rem;
-  opacity: 0.9;
-}
-
-/* Carrusel row */
-.plataformas-row {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 1rem;
-  align-items: center;
-  margin-top: 1.2rem;
-}
-
-.plat-nav-btn {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(148, 163, 184, 0.6);
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  color: #e5e7eb;
-  cursor: pointer;
-  box-shadow: 0 10px 24px rgba(15,23,42,0.7);
-  transition: 0.25s;
-}
-
-.plat-nav-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  background: rgba(30, 64, 175, 0.9);
-  border-color: rgba(191, 219, 254, 0.9);
-}
-
-.plat-nav-btn:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-
-.plataformas-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-/* Tarjeta plataforma con brillo */
-.plataforma-card {
-  background: radial-gradient(circle at top left,
-              rgba(30, 64, 175, 0.9),
-              rgba(15, 23, 42, 0.95));
-  padding: 0.9rem 1rem;
-  border-radius: 1.1rem;
-  border: 1px solid rgba(129, 140, 248, 0.35);
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Halo de luz al hover */
-.plataforma-card::before {
-  content: "";
-  position: absolute;
-  inset: -60%;
-  background: radial-gradient(circle at top left,
-              rgba(96, 165, 250, 0.25),
-              transparent 60%);
-  opacity: 0;
-  transition: opacity 0.35s ease;
-}
-
-.plataforma-card:hover::before {
-  opacity: 1;
-}
-
-.plat-main {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  z-index: 1;
-}
-
-.plat-actions {
-  z-index: 1;
-}
-
-/* Logo circular */
-.plat-logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 18px rgba(248, 250, 252, 0.45);
-}
-
-.plat-logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.plat-name {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-.plat-desc {
-  font-size: 0.85rem;
-  color: #e5e7eb;
-  padding-top: 0.4rem;
-  border-top: 1px solid rgba(148,163,184,0.4);
-}
-
-/* EFECTO FLOTANTE GENERAL */
-.float {
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-}
-
-.float:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.8);
-  border-color: rgba(129, 140, 248, 0.8);
-}
-
-/* BOTÓN FAQ FLOTANTE */
-.bottom.right {
+/* === BOTTOM DOCK === */
+.bottom-dock {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 999;
-}
-
-.bottom.right .btn.small {
-  padding: 0.4rem 0.6rem;
-  font-size: 1rem;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  justify-content: center;
+  background: rgba(30, 41, 59, 0.85);
+  backdrop-filter: blur(20px);
+  padding: 0.5rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  z-index: 100;
 }
+
+.dock-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.dock-btn:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
+.dock-btn.primary { color: #60a5fa; }
+.dock-btn.secondary { color: #c084fc; }
+.dock-icon { font-size: 1.4rem; }
+.dock-separator { width: 1px; height: 24px; background: rgba(255, 255, 255, 0.15); margin: 0 0.5rem; }
 
 /* ANIMACIONES */
-.animate-fade {
-  animation: fadeIn 0.4s ease;
-}
-.animate-fade-delayed {
-  animation: fadeIn 0.6s ease;
-}
-.animate-fade-delayed2 {
-  animation: fadeIn 0.8s ease;
-}
+.glow-effect:hover { box-shadow: 0 0 15px rgba(37, 99, 235, 0.5); }
+.float:hover { transform: translateY(-5px); }
+.animate-fade { animation: fadeIn 0.6s ease-out; }
+.animate-fade-delayed { animation: fadeIn 0.8s ease-out backwards; }
+.animate-fade-delayed2 { animation: fadeIn 1s ease-out backwards; }
+.animate-slide-down { animation: slideDown 0.3s ease-out; }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); max-height: 0; } to { opacity: 1; transform: translateY(0); max-height: 200px; } }
 
 /* RESPONSIVE */
+@media (max-width: 1024px) { .plataformas-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 768px) {
-  .dashboard {
-    padding: 1.5rem 1.2rem 2.5rem;
-  }
-  .cards {
-    flex-direction: column;
-  }
-  .card-main-footer {
-    align-items: flex-start;
-  }
+  .dashboard { padding: 2rem 1.5rem 7rem; }
+  .topbar { flex-direction: column; gap: 1rem; }
+  .header-left, .header-center, .header-right-spacer { width: 100%; text-align: center; }
+  .welcome-text { font-size: 1.2rem; }
+  .cards { grid-template-columns: 1fr; }
+  .plataformas-grid { grid-template-columns: 1fr; }
+  .plataformas-row { flex-wrap: wrap; justify-content: center; }
+  .plat-nav-btn { display: none; }
+  .plataformas-grid { display: flex; flex-direction: column; width: 100%; }
+  .desktop-only { display: none; } 
 }
 </style>

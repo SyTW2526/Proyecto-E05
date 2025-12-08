@@ -1,55 +1,63 @@
 <template>
-  <div class="alertas">
+  <div class="dashboard alertas-page">
+    <div class="watermark"></div>
 
     <div class="back-button-container">
-      <button type="button" class="btn back" @click="volverDashboard">⬅ Volver</button>
+      <button class="btn small ghost-dark" @click="volverDashboard">
+        ⬅ Volver
+      </button>
     </div>
-  
-    <!-- TOP BAR -->
-    <header class="topbar animate-fade">
-      <h1 class="page-title">Mis alertas</h1>
-    </header>
 
-    <!-- LISTA DE ALERTAS -->
-    <section class="alertas-list animate-fade-delayed">
-      <!-- ESTADO CARGANDO -->
-      <p v-if="isLoading" class="no-alerts">
-        Cargando alertas...
-      </p>
+    <div class="container-centered animate-fade">
+      
+      <header class="header-center">
+        <h1 class="title-main">Mis Alertas</h1>
+        <p class="subtitle-main">Mantente al día con tus pagos, grupos y notificaciones.</p>
+      </header>
 
-      <!-- ERROR -->
-      <p v-else-if="error" class="no-alerts">
-        {{ error }}
-      </p>
-
-      <!-- ALERTAS -->
-      <template v-else>
-        <div
-          v-for="alerta in alertas"
-          :key="alerta.id"
-          class="alert-card float"
-        >
-          <div class="alert-header">
-            <span class="alert-type" :class="alerta.tipo">
-              {{ formatearTipo(alerta.tipo) }}
-            </span>
-            <span class="alert-date">
-              {{ formatearFecha(alerta.fecha || alerta.createdAt) }}
-            </span>
-          </div>
-
-          <p class="alert-text">{{ alerta.mensaje }}</p>
+      <section class="alertas-list animate-fade-delayed">
+        
+        <div v-if="isLoading" class="state-msg">
+          <div class="spinner"></div>
+          <p>Cargando notificaciones...</p>
         </div>
 
-        <!-- SIN ALERTAS -->
-        <p
-          v-if="alertas.length === 0"
-          class="no-alerts"
-        >
-          No tienes alertas por ahora
-        </p>
-      </template>
-    </section>
+        <div v-else-if="error" class="msg error">
+          ❌ {{ error }}
+        </div>
+
+        <template v-else>
+          <div v-if="alertas.length > 0" class="alerts-stack">
+            <article
+              v-for="alerta in alertas"
+              :key="alerta.id"
+              class="alert-card-wide float"
+            >
+              <div class="alert-content">
+                <div class="alert-meta">
+                  <span class="badge" :class="claseTipo(alerta.tipo)">
+                    {{ formatearTipo(alerta.tipo) }}
+                  </span>
+                  <span class="date-mobile">{{ formatearFecha(alerta.fecha || alerta.createdAt) }}</span>
+                </div>
+                
+                <p class="alert-message">{{ alerta.mensaje }}</p>
+              </div>
+
+              <div class="alert-right">
+                <span class="date-desktop">{{ formatearFecha(alerta.fecha || alerta.createdAt) }}</span>
+              </div>
+            </article>
+          </div>
+
+          <div v-else class="empty-state">
+            <span class="empty-icon">🔕</span>
+            <p>No tienes notificaciones nuevas</p>
+          </div>
+        </template>
+      </section>
+
+    </div>
   </div>
 </template>
 
@@ -69,7 +77,7 @@ const volverDashboard = () => {
 
 onMounted(async () => {
   if (alertas.value.length === 0) {
-    await alertStore.fetchAlertas(); // GET /alertas en el backend
+    await alertStore.fetchAlertas();
   }
 });
 
@@ -80,191 +88,224 @@ const formatearTipo = (tipo?: string) => {
     suscripcion: "Suscripción",
     sistema: "Sistema",
   };
-  return mapping[tipo ?? ""] || "Alerta";
+  return mapping[tipo ?? ""] || "Aviso";
+};
+
+const claseTipo = (tipo?: string) => {
+  return tipo ? tipo.toLowerCase() : 'default';
 };
 
 const formatearFecha = (fechaRaw?: string) => {
   if (!fechaRaw) return "";
   const d = new Date(fechaRaw);
   if (isNaN(d.getTime())) return fechaRaw;
+  // Formato: 05 de diciembre, 09:30
   return d.toLocaleDateString("es-ES", {
     day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit"
   });
 };
 </script>
 
-
 <style scoped>
-.alertas {
+/* CONFIGURACIÓN GENERAL */
+.dashboard {
   position: relative;
   min-height: 100vh;
-  padding: 1.25rem 2rem 2rem;
+  /* Espaciado superior para que el contenido no pegue arriba */
+  padding: 4rem 2rem 2rem; 
   background: linear-gradient(120deg, #e0f2ff, #a2b8d9, #1e293b);
-  color: #f9fafb;
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  
+  /* Flex para centrar todo el bloque */
+  display: flex;
+  justify-content: center; 
+  align-items: flex-start; /* Alineado arriba, no al centro vertical */
+  font-family: "Inter", sans-serif;
+}
+
+.watermark {
+  position: absolute; inset: -20%; opacity: 0.8; pointer-events: none; z-index: 0;
+  background: radial-gradient(circle at 15% 0%, rgba(255,255,255,0.35), transparent 55%),
+              radial-gradient(circle at 80% 100%, rgba(59,130,246,0.4), transparent 60%);
+}
+.dashboard > * { z-index: 1; }
+
+/* CONTENEDOR ANCHO Y CENTRADO */
+.container-centered {
+  width: 100%;
+  max-width: 1100px; /* AQUÍ ALARGAMOS EL CONTENIDO (1100px es bastante ancho) */
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
-  overflow: hidden;
+  gap: 2rem;
+  margin: 0 auto; /* Asegura centrado horizontal extra */
 }
 
-.alertas > * {
-  position: relative;
-  z-index: 2;
-}
-
-/* TOPBAR */
-.topbar {
+/* HEADER */
+.header-center {
   display: flex;
+  flex-direction: column; /* Apila título y subtítulo */
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  text-align: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.title-main {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #1e293b;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+  margin: 0;
+  line-height: 1.1;
+}
+
+.subtitle-main {
+  margin: 0;
+  color: #475569;
+  font-size: 1.05rem;
+}
+
+/* LISTA DE ALERTAS */
+.alerts-stack {
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
 }
 
-.title {
-  font-size: 2rem;
+/* TARJETA DE ALERTA "ALARGADA" */
+.alert-card-wide {
+  background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.95));
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 1.4rem 2rem;
+  border-radius: 1.2rem;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.4);
+  
+  /* Layout interno horizontal */
+  display: flex;
+  align-items: center; 
+  justify-content: space-between;
+  gap: 1.5rem;
+  
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.alert-card-wide:hover {
+  transform: translateX(4px);
+  border-color: rgba(129, 140, 248, 0.6);
+  background: radial-gradient(circle at top left, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1));
+}
+
+/* CONTENIDO DE LA ALERTA */
+.alert-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex: 1; /* Ocupa todo el espacio disponible */
+}
+
+.alert-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.alert-message {
+  color: #f1f5f9;
+  font-size: 1.05rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* PARTE DERECHA (FECHA) */
+.alert-right {
+  text-align: right;
+  min-width: 140px;
+}
+
+.date-desktop {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+.date-mobile { display: none; }
+
+/* BADGES (ETIQUETAS) */
+.badge {
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
   font-weight: 700;
-  color:rgba(9, 162, 233, 0.75)
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid transparent;
+}
+
+/* Colores Badge */
+.badge.pago { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border-color: rgba(239, 68, 68, 0.4); }
+.badge.grupo { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border-color: rgba(59, 130, 246, 0.4); }
+.badge.suscripcion { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border-color: rgba(168, 85, 247, 0.4); }
+.badge.sistema { background: rgba(100, 116, 139, 0.3); color: #cbd5e1; border-color: rgba(100, 116, 139, 0.5); }
+.badge.default { background: rgba(255, 255, 255, 0.1); color: #e2e8f0; }
+
+/* ESTADOS */
+.state-msg, .empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #1e293b;
+  background: rgba(255,255,255,0.3);
+  border-radius: 1rem;
+  backdrop-filter: blur(5px);
+}
+.spinner {
+  margin: 0 auto 1rem;
+  width: 30px; height: 30px;
+  border: 3px solid rgba(30, 41, 59, 0.2);
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-icon { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; }
+.msg.error {
+  background: rgba(239, 68, 68, 0.2);
+  color: #b91c1c;
+  padding: 1rem;
+  border-radius: 0.8rem;
+  text-align: center;
+  font-weight: 700;
+  border: 1px solid #ef4444;
 }
 
 /* BOTÓN VOLVER */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 0.8rem;
-  padding: 0.6rem 1rem;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: 0.25s;
-  background: rgba(15, 23, 42, 0.4);
-  color: #e5e7eb;
-  backdrop-filter: blur(10px);
+.back-button-container {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
 }
+.btn { border: none; cursor: pointer; border-radius: 999px; font-weight: 600; transition: 0.2s; }
+.btn.small { padding: 0.5rem 1rem; font-size: 0.9rem; }
+.btn.ghost-dark { background: transparent; color: #1e293b; border: 1px solid rgba(148, 163, 184, 0.6); }
+.btn.ghost-dark:hover { background: rgba(15, 23, 42, 0.1); }
 
-.btn.small {
-  padding: 0.4rem 0.9rem;
-  font-size: 0.82rem;
-  border-radius: 999px;
-}
+/* ANIMACIONES */
+.animate-fade { animation: fadeIn 0.5s ease; }
+.animate-fade-delayed { animation: fadeIn 0.7s ease backwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-.btn.primary {
-  background: linear-gradient(135deg, #4f46e5, #22d3ee);
-  color: white;
-}
-
-.btn.primary:hover {
-  filter: brightness(1.08);
-  transform: translateY(-2px) scale(1.02);
-}
-
-/* AREA DE ALERTAS */
-.alertas-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-}
-
-/* TARJETAS */
-.alert-card {
-  background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  padding: 1.2rem 1.4rem;
-  border-radius: 1.4rem;
-  backdrop-filter: blur(16px);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-}
-
-.alert-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.6);
-  border-color: rgba(129, 140, 248, 0.8);
-}
-
-/* CABECERA DE TARJETA */
-.alert-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.6rem;
-}
-
-.alert-type {
-  padding: 0.3rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  border: 1px solid rgba(148, 163, 184, 0.4);
-}
-
-/* COLORES TIPO ALERTA */
-.alert-type.pago {
-  background: rgba(220, 38, 38, 0.25);
-  border-color: rgba(248, 113, 113, 0.7);
-}
-
-.alert-type.grupo {
-  background: rgba(14, 165, 233, 0.25);
-  border-color: rgba(56, 189, 248, 0.7);
-}
-
-.alert-type.suscripcion {
-  background: rgba(168, 85, 247, 0.25);
-  border-color: rgba(192, 132, 252, 0.7);
-}
-
-.alert-date {
-  font-size: 0.82rem;
-  opacity: 0.8;
-}
-
-.alert-text {
-  font-size: 0.95rem;
-  opacity: 0.95;
-}
-
-/* NO ALERTAS */
-.no-alerts {
-  text-align: center;
-  margin-top: 2rem;
-  font-size: 1.1rem;
-  opacity: 0.85;
-}
-
-/* ANIMACIONES (idénticas al dashboard) */
-.animate-fade {
-  animation: fadeIn 0.4s ease;
-}
-
-.animate-fade-delayed {
-  animation: fadeIn 0.6s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .dashboard { padding-left: 1rem; padding-right: 1rem; }
+  .alert-card-wide {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  .alert-right { display: none; } /* Ocultar fecha derecha en móvil */
+  .date-mobile { display: inline-block; font-size: 0.8rem; color: #94a3b8; margin-left: auto; }
+  .alert-meta { width: 100%; justify-content: space-between; }
 }
-
-.page-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #0f172a;          /* negro azulado elegante */
-  margin-bottom: 1rem;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-
 </style>
-
