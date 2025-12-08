@@ -138,6 +138,45 @@ jobs:
             );
           "
 
+          # H) TABLA QUEJA
+          psql -h localhost -U postgres -d fragments -c "
+            CREATE TABLE IF NOT EXISTS queja (
+              id_queja SERIAL PRIMARY KEY,
+              id_usuario INTEGER REFERENCES usuario(id_usuario),
+              id_grupo INTEGER REFERENCES grupo(id_grupo),
+              titulo VARCHAR(255),
+              mensaje TEXT,
+              estado VARCHAR(50),
+              fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              fecha_resuelta TIMESTAMP
+            );
+          "
+
+          # I) TABLA ALERTA
+          psql -h localhost -U postgres -d fragments -c "
+            CREATE TABLE IF NOT EXISTS alerta (
+              id_alerta SERIAL PRIMARY KEY,
+              id_usuario INTEGER REFERENCES usuario(id_usuario),
+              tipo VARCHAR(100),
+              titulo VARCHAR(255),
+              mensaje TEXT,
+              leida BOOLEAN DEFAULT false,
+              id_grupo INTEGER REFERENCES grupo(id_grupo),
+              id_plan INTEGER REFERENCES plan_sub(id_plan),
+              id_transaccion INTEGER REFERENCES transaccion(id_transaccion),
+              fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              fecha_leida TIMESTAMP,
+              metadata JSONB
+            );
+          "
+
+          # J) COLUMNA fecha_inicio_cobro EN plan_sub
+          psql -h localhost -U postgres -d fragments -c "
+            ALTER TABLE plan_sub
+            ADD COLUMN IF NOT EXISTS fecha_inicio_cobro DATE;
+          "
+
+
           # 2. ARRANCAR BACKEND
           cd backend
           npm install
