@@ -8,6 +8,11 @@ describe('anadirsaldo', function() {
 
   beforeEach(async function() {
     const options = new firefox.Options();    
+    if (process.env.CI) {
+        options.addArguments('--headless');
+        options.addArguments('--width=1920'); 
+        options.addArguments('--height=1080');
+    }
     driver = await new Builder()
       .forBrowser('firefox')
       .setFirefoxOptions(options)
