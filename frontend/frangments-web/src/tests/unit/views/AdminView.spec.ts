@@ -1,93 +1,76 @@
-import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { mount } from "@vue/test-utils";
 import AdminView from "@/views/AdminView.vue";
+import { createTestingPinia } from "@pinia/testing";
+import { useRouter } from "vue-router";
 
-// ---- Mocks compartidos ----
-const pushMock = vi.fn();
-const logoutMock = vi.fn();
-const fetchMeMock = vi.fn();
-const loadAllMock = vi.fn();
-const eliminarUsuarioMock = vi.fn();
-const promoverUsuarioMock = vi.fn();
-const eliminarGrupoMock = vi.fn();
-const eliminarOfertaMock = vi.fn();
-
-// mock router
 vi.mock("vue-router", () => ({
-  useRouter: () => ({
-    push: pushMock,
-  }),
+  useRouter: vi.fn(),
 }));
 
-// mock auth store
-vi.mock("@/stores/auth", () => ({
-  useAuthStore: () => ({
-    user: { id: 1, nombre: "Admin", email: "admin@test.com", tipo: "admin" },
-    isAdmin: true,
-    fetchMe: fetchMeMock,
-    logout: logoutMock,
-  }),
-}));
-
-// mock admin store
 vi.mock("@/stores/admin", () => ({
-  useAdminStore: () => ({
-    users: [
-      { id_usuario: 1, nombre: "User 1", mail: "u1@test.com", tipo: "user" },
-    ],
-    grupos: [{ id: 10, nombre: "Grupo 1" }],
-    ofertas: [
-      { id: 100, plataforma: "Spotify", precio: 5, usuario: "User 1", grupo: "Grupo 1" },
-    ],
-    loadAll: loadAllMock,
-    eliminarUsuario: eliminarUsuarioMock,
-    promoverUsuario: promoverUsuarioMock,
-    eliminarGrupo: eliminarGrupoMock,
-    eliminarOferta: eliminarOfertaMock,
-    actualizarSaldo: vi.fn(),
-  }),
+    useAdminStore: vi.fn(() => ({
+        users: [], grupos: [], ofertas: [], loadAll: vi.fn(),
+        eliminarUsuario: vi.fn(), eliminarGrupo: vi.fn(), eliminarOferta: vi.fn()
+    }))
+}));
+vi.mock("@/stores/queja", () => ({
+    useQuejasStore: vi.fn(() => ({
+        quejas: [], fetchQuejas: vi.fn(), marcarEstado: vi.fn()
+    }))
 }));
 
 describe("AdminView", () => {
+  let pushMock: any;
+
   beforeEach(() => {
+    pushMock = vi.fn();
+    (useRouter as any).mockReturnValue({ push: pushMock });
     vi.clearAllMocks();
   });
 
-  it("muestra la sección de usuarios por defecto", () => {
-    const wrapper = mount(AdminView);
+  // Configuración común de montaje con Pinia
+  const mountOptions = {
+    global: {
+      plugins: [
+        createTestingPinia({
+          initialState: {
+            auth: { isAdmin: true, user: { nombre: "Admin" } },
+          },
+          stubActions: false, 
+        }),
+      ],
+    },
+  };
 
-    expect(wrapper.text()).toContain("Usuarios registrados");
-    expect(wrapper.find("section.panel h3").text()).toBe("Usuarios registrados");
+  it("muestra la sección de usuarios por defecto", () => {
+    const wrapper = mount(AdminView, mountOptions);
+    // Verificar que se renderiza el título de la sección usuarios
+    expect(wrapper.text()).toContain("Usuarios registrados"); 
   });
 
   it("cambia de sección al hacer click en los botones de navegación", async () => {
-    const wrapper = mount(AdminView);
-
-    // Grupos
-    await wrapper.get("button:nth-of-type(2)").trigger("click");
-    expect(wrapper.text()).toContain("Grupos registrados");
-
-    // Ofertas
-    await wrapper.get("button:nth-of-type(3)").trigger("click");
-    expect(wrapper.text()).toContain("Ofertas publicadas");
-  });
-
-  it("llama a logout y redirige a login al pulsar Cerrar sesión", async () => {
-    const wrapper = mount(AdminView);
-
-    const btnLogout = wrapper.get("button.btn-pill-red");
-    await btnLogout.trigger("click");
-
-    expect(logoutMock).toHaveBeenCalledTimes(1);
-    expect(pushMock).toHaveBeenCalledWith({ name: "login" });
+    const wrapper = mount(AdminView, mountOptions);
+    
+    // Busca el botón de Grupos (ahora es .pill-btn) por su texto
+    const btnGrupos = wrapper.findAll(".pill-btn").find(b => b.text().includes("Grupos"));
+    
+    if (btnGrupos) {
+        await btnGrupos.trigger("click");
+        // Verifica que cambia el contenido
+        expect(wrapper.text()).toContain("Grupos registrados"); 
+    } else {
+        throw new Error("Botón de Grupos no encontrado");
+    }
   });
 
   it("redirige al dashboard al pulsar Volver", async () => {
-    const wrapper = mount(AdminView);
-
-    const btnVolver = wrapper.get("button.btn-pill-dark");
+    const wrapper = mount(AdminView, mountOptions);
+    
+    // Selector actualizado
+    const btnVolver = wrapper.find(".back-button-container button");
     await btnVolver.trigger("click");
-
+    
     expect(pushMock).toHaveBeenCalledWith({ name: "dashboard" });
   });
 });

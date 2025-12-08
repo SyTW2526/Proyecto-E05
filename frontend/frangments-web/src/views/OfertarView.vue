@@ -1,83 +1,83 @@
 <template>
-  <div class="ofertar page">
+  <div class="dashboard ofertar-page">
+    <div class="watermark"></div>
 
     <div class="back-button-container">
-      <button type="button" class="btn back" @click="volverDashboard">⬅ Volver</button>
+      <button type="button" class="btn small ghost-dark" @click="volverDashboard">⬅ Volver</button>
     </div>
 
-    <header class="header">
-      <h2>Publicar un nuevo plan</h2>
-      <p class="subtitle">Crea un plan y se creará automáticamente su grupo asociado</p>
-    </header>
+    <div class="container-wide animate-fade">
+      <header class="header-center">
+        <h2 class="title-main">Publicar un nuevo plan</h2>
+        <p class="subtitle-main">Crea un plan y se creará automáticamente su grupo asociado</p>
+      </header>
 
-    <form class="form" @submit.prevent="crearPlan">
-      <!-- Plataforma -->
-      <div class="form-group">
-        <label for="plataforma">Plataforma del plan</label>
-        <select id="plataforma" v-model.number="form.plataforma" required>
-          <option disabled value="">Selecciona una plataforma</option>
-          <option v-for="p in plataformas" :key="p.id_plataforma" :value="p.id_plataforma">
-            {{ p.nombre }}
-          </option>
-        </select>
-      </div>
+      <form class="card-wide animate-fade-delayed" @submit.prevent="crearPlan">
+        
+        <div class="form-grid">
+          <div class="form-item full-width">
+            <label>Plataforma del plan</label>
+            <div class="select-wrapper">
+              <select v-model.number="form.plataforma" required>
+                <option disabled value="">Selecciona una plataforma</option>
+                <option v-for="p in plataformas" :key="p.id_plataforma" :value="p.id_plataforma">
+                  {{ p.nombre }}
+                </option>
+              </select>
+            </div>
+          </div>
 
-      <!-- Precio -->
-      <div class="form-group">
-        <label for="precio">Precio (€)</label>
-        <input
-          type="number"
-          id="precio"
-          v-model.number="form.precio"
-          placeholder="Introduce el precio"
-          required
-          min="0"
-          step="0.01"
-        />
-      </div>
+          <div class="form-item">
+            <label>Precio (€)</label>
+            <input
+              type="number"
+              v-model.number="form.precio"
+              placeholder="0.00"
+              required
+              min="0"
+              step="0.01"
+            />
+          </div>
 
-      <!-- Fecha de vencimiento -->
-      <div class="form-group">
-        <label for="fecha_vencimiento">Fecha de vencimiento</label>
-        <input
-          type="date"
-          id="fecha_vencimiento"
-          v-model="form.fecha_vencimiento"
-          required
-        />
-      </div>
+          <div class="form-item">
+            <label>Fecha de vencimiento</label>
+            <input
+              type="date"
+              v-model="form.fecha_vencimiento"
+              required
+            />
+          </div>
 
-      <!-- Número de personas -->
-      <div class="form-group">
-        <label for="personas">Número de personas</label>
-        <input
-          type="number"
-          id="personas"
-          v-model.number="form.personas"
-          placeholder="Número de personas que pueden unirse"
-          required
-          min="1"
-        />
-      </div>
+          <div class="form-item">
+            <label>Personas</label>
+            <input
+              type="number"
+              v-model.number="form.personas"
+              placeholder="1"
+              required
+              min="1"
+            />
+          </div>
 
-      <!-- Nombre del grupo (nuevo) -->
-      <div class="form-group">
-        <label>Nombre del grupo asociado</label>
-        <input
-          type="text"
-          v-model="form.nuevo_grupo"
-          placeholder="Escribe el nombre del grupo"
-          required
-        />
-      </div>
+          <div class="form-item full-width">
+            <label>Nombre del grupo asociado</label>
+            <input
+              type="text"
+              v-model="form.nuevo_grupo"
+              placeholder="Ej: Netflix Familia Pérez"
+              required
+            />
+          </div>
+        </div>
 
-      <!-- Botones -->
-      <div class="botones">
-        <button class="btn publicar" type="submit">Publicar plan</button>
-      </div>
-    </form>
+        <div class="form-actions">
+          <button class="btn primary big" type="submit">Publicar plan</button>
+        </div>
 
-    <div v-if="mensaje" class="mensaje">{{ mensaje }}</div>
+      </form>
+
+      <div v-if="mensaje" class="mensaje-floating">{{ mensaje }}</div>
+    </div>
   </div>
 </template>
 
@@ -105,211 +105,159 @@ const form = ref({
 onMounted(async () => {
   try {
     const token = localStorage.getItem("token");
-    // Traer plataformas
-    const respPlataformas = await apiax.get("/plataforma", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    plataformas.value = respPlataformas.data;
-  } catch (error) {
-    console.error("Error cargando plataformas:", error);
-    mensaje.value = "❌ Error al cargar las plataformas";
-  }
+    const resp = await apiax.get("/plataforma", { headers: { Authorization: `Bearer ${token}` } });
+    plataformas.value = resp.data;
+  } catch (error) { mensaje.value = "❌ Error al cargar plataformas"; }
 });
 
 async function crearPlan() {
-  if (!form.value.plataforma || !form.value.precio || !form.value.fecha_vencimiento || !form.value.nuevo_grupo || !form.value.personas) {
-    mensaje.value = "Por favor completa todos los campos";
-    return;
+  if (!form.value.plataforma || !form.value.precio || !form.value.fecha_vencimiento || !form.value.nuevo_grupo) {
+    mensaje.value = "Completa todos los campos"; return;
   }
-
   try {
     const nuevoGrupo = await account.createGroup(form.value.nuevo_grupo);
-    const id_grupo = nuevoGrupo.id_grupo;
-
     const token = localStorage.getItem("token");
-    await apiax.post(
-      "/plan_sub/subscribe",
-      {
+    await apiax.post("/plan_sub/subscribe", {
         id_plataforma: Number(form.value.plataforma),
         precio: form.value.precio,
         fecha_vencimiento: form.value.fecha_vencimiento,
-        id_grupo,
+        id_grupo: nuevoGrupo.id_grupo,
         nmiembros: form.value.personas
-      },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+      }, { headers: { Authorization: `Bearer ${token}` } });
+    
     await alertStore.fetchAlertas();
-    mensaje.value = "✅ Plan y grupo creado con éxito";
-    form.value = { plataforma: "", precio: null, fecha_vencimiento: "", personas: 1, nuevo_grupo: "" };
-  } catch (error: any) {
-    console.error(error);
-    mensaje.value = error.response?.data?.message || "❌ Error al crear el plan";
-  }
+    mensaje.value = "✅ Plan creado con éxito";
+    setTimeout(() => router.push({ name: 'dashboard' }), 1500);
+  } catch (e) { mensaje.value = "❌ Error al crear el plan"; }
 }
-
-function volverDashboard() {
-  router.push({ name: "dashboard" });
-}
+function volverDashboard() { router.push({ name: "dashboard" }); }
 </script>
 
 <style scoped>
-.ofertar {
+/* BASE */
+.dashboard {
+  position: relative;
   min-height: 100vh;
-  padding: 3.5rem 3rem 3rem;
+  padding: 2rem;
   background: linear-gradient(120deg, #e0f2ff, #a2b8d9, #1e293b);
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
-  color: #e5e7eb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Inter", sans-serif;
+}
+.watermark {
+  position: absolute; inset: -20%; opacity: 0.8; pointer-events: none; z-index: 0;
+  background: radial-gradient(circle at 15% 0%, rgba(255,255,255,0.35), transparent 55%),
+              radial-gradient(circle at 80% 100%, rgba(59,130,246,0.4), transparent 60%);
+}
+.dashboard > * { z-index: 1; }
+
+.container-wide {
+  width: 100%;
+  max-width: 1000px;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 2rem;
 }
 
-/* BOTÓN VOLVER ARRIBA IZQUIERDA */
-.back-button-container {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  z-index: 40;
+/* --- HEADER CORREGIDO --- */
+.header-center { 
+  display: flex;          /* Usamos Flexbox */
+  flex-direction: column; /* IMPORTANTE: Apilar verticalmente */
+  align-items: center;    /* Centrar horizontalmente */
+  justify-content: center;
+  text-align: center; 
+  gap: 0.5rem;            /* Espacio entre título y subtítulo */
+  margin-bottom: 1rem;
 }
 
-.back-button-container .btn.back {
-  background: #0f172a;
-  padding: 0.55rem 1.4rem;
-  border-radius: 999px;
-  border: none;
-  color: #f9fafb;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.9);
-  transition: 0.2s ease;
+.title-main { 
+  font-size: 2.5rem;      /* Un poco más grande para destacar */
+  font-weight: 800; 
+  color: #1e293b; 
+  margin: 0; 
+  line-height: 1.2;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.5); 
 }
 
-.back-button-container .btn.back:hover {
-  transform: translateY(-2px);
-  background: #111827;
+.subtitle-main { 
+  color: #475569; 
+  margin: 0; 
+  font-size: 1.1rem; 
+  font-weight: 500;
+}
+/* ------------------------ */
+
+/* TARJETA FORMULARIO */
+.card-wide {
+  background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.85));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 2.5rem 3rem;
+  border-radius: 1.4rem;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.6);
+  color: white;
 }
 
-/* HEADER */
-.header {
-  text-align: center;
-  margin-top: 1.5rem;
+/* GRID */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem 2rem;
 }
 
-.header h2 {
-  font-size: 2.1rem;
-  font-weight: 800;
-  color: #ffffff;
-  text-shadow: 0 2px 10px rgba(15, 23, 42, 0.8);
-}
+.form-item { display: flex; flex-direction: column; gap: 0.5rem; }
+.full-width { grid-column: 1 / -1; }
 
-.subtitle {
-  color: #e5e7eb;
-  font-size: 0.95rem;
-  margin-top: 0.4rem;
-  opacity: 0.9;
-}
+label { font-size: 0.9rem; font-weight: 600; color: #cbd5e1; margin-left: 0.2rem; }
 
-/* FORMULARIO: PANEL TIPO DASHBOARD */
-.form {
-  width: 100%;
-  max-width: 640px;
-  background: radial-gradient(circle at top left,
-    rgba(15, 23, 42, 0.96),
-    rgba(15, 23, 42, 1)
-  );
-  backdrop-filter: blur(18px);
-  padding: 2.3rem 2.6rem;
-  border-radius: 1.6rem;
-  box-shadow: 0 26px 60px rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  display: flex;
-  flex-direction: column;
-  gap: 1.4rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-label {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #e5e7eb;
-}
-
-/* CAMPOS */
-input,
-select {
+input, select {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: white;
   padding: 0.8rem 1rem;
-  border-radius: 0.9rem;
-  border: 1px solid #334155;
-  font-size: 0.95rem;
+  border-radius: 0.8rem;
+  font-size: 1rem;
+  width: 100%;
   outline: none;
-  background: rgba(15, 23, 42, 0.95);
-  color: #e5e7eb;
+  transition: 0.2s;
 }
-
-input::placeholder {
-  color: #9ca3af;
-}
-
-input:focus,
-select:focus {
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.35);
+input:focus, select:focus {
+  border-color: #22d3ee;
+  background: rgba(30, 41, 59, 0.9);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
 }
 
 /* BOTONES */
-.botones {
-  display: flex;
-  justify-content: center;
-  margin-top: 0.8rem;
+.form-actions { margin-top: 2rem; }
+.btn { border: none; cursor: pointer; border-radius: 0.8rem; font-weight: 600; transition: 0.2s; }
+
+.btn.primary.big {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+  background: linear-gradient(135deg, #4f46e5, #22d3ee);
+  color: white;
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5);
+}
+.btn.primary.big:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+.back-button-container { position: absolute; top: 2rem; left: 2rem; }
+.btn.ghost-dark {
+  background: transparent; color: #1e293b; border: 1px solid rgba(148, 163, 184, 0.6);
+  padding: 0.5rem 1rem; border-radius: 999px;
+}
+.btn.ghost-dark:hover { background: rgba(15, 23, 42, 0.1); }
+
+.mensaje-floating {
+  margin-top: 1rem; text-align: center; background: #10b981; color: white;
+  padding: 1rem; border-radius: 0.8rem; font-weight: bold;
 }
 
-.btn {
-  font-weight: 600;
-  border: none;
-  border-radius: 999px;
-  padding: 0.75rem 1.8rem;
-  cursor: pointer;
-}
-
-/* Sin exceso de brillo, pero con look moderno */
-.btn.publicar {
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
-  color: #ffffff;
-  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.55);
-  transition: 0.18s ease;
-}
-
-.btn.publicar:hover {
-  filter: brightness(1.05);
-  transform: translateY(-2px);
-}
-
-/* MENSAJE RESULTADO */
-.mensaje {
-  margin-top: 1.4rem;
-  font-weight: 600;
-  color: #e5e7eb;
-  background: rgba(15, 23, 42, 0.9);
-  padding: 0.9rem 1.1rem;
-  border-radius: 0.9rem;
-  border: 1px solid rgba(148, 163, 184, 0.4);
-}
-
-/* RESPONSIVE */
 @media (max-width: 768px) {
-  .ofertar {
-    padding: 3.5rem 1.4rem 2.5rem;
-  }
-
-  .form {
-    padding: 1.8rem 1.6rem;
-  }
+  .form-grid { grid-template-columns: 1fr; }
+  .container-wide { padding: 0 1rem; }
+  .card-wide { padding: 1.5rem; }
+  .header-center { margin-bottom: 1.5rem; }
 }
 </style>

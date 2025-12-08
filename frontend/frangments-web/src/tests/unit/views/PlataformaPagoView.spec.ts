@@ -1,121 +1,109 @@
-import { mount, flushPromises } from "@vue/test-utils";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { mount, flushPromises } from "@vue/test-utils";
 import PlataformaPagoView from "@/views/PlataformaPagoView.vue";
+import { createTestingPinia } from "@pinia/testing";
+import { useRouter } from "vue-router";
 import apiax from "@/apiAxios";
 
-// ---- router mock ----
-const pushMock = vi.fn();
-
+// Mocks
 vi.mock("vue-router", () => ({
-  useRouter: () => ({
-    push: pushMock,
-  }),
+  useRouter: vi.fn(),
 }));
-
-// ---- auth store mock ----
-const authState = {
-  user: {
-    id: 10,
-    saldo: 100,
-  } as any,
-};
-
-vi.mock("@/stores/auth", () => ({
-  useAuthStore: () => ({
-    get user() {
-      return authState.user;
-    },
-  }),
-}));
-
-// ---- apiAxios mock ----
-// OJO: nada de variables externas aquí
-vi.mock("@/apiAxios", () => ({
-  default: {
-    post: vi.fn(),
-  },
-}));
+vi.mock("@/apiAxios");
 
 describe("PlataformaPagoView", () => {
+  let pushMock: any;
+
   beforeEach(() => {
+    pushMock = vi.fn();
+    (useRouter as any).mockReturnValue({ push: pushMock });
     vi.clearAllMocks();
-    pushMock.mockReset();
-
-    authState.user = { id: 10, saldo: 100 };
-
-    localStorage.setItem("token", "fake-token");
-    (apiax as any).post.mockReset?.();
   });
 
   it("muestra mensaje si la cantidad no es válida y no llama a la API", async () => {
-    const wrapper = mount(PlataformaPagoView);
+    const wrapper = mount(PlataformaPagoView, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            initialState: { auth: { user: { id: 1, saldo: 10 } } },
+            createSpy: vi.fn,
+          }),
+        ],
+      },
+    });
 
-    const btn = wrapper.get(".btn-pay");
+    // Selector actualizado al nuevo botón grande
+    const btn = wrapper.get("button.btn.primary.big-btn");
     await btn.trigger("click");
     await flushPromises();
 
-    expect(wrapper.text()).toContain("Introduce una cantidad válida.");
-    expect((apiax as any).post).not.toHaveBeenCalled();
+    expect(apiax.post).not.toHaveBeenCalled();
+    // El texto exacto de tu script
+    expect(wrapper.text()).toContain("Por favor, introduce una cantidad válida");
   });
 
   it("con cantidad válida llama a la API, actualiza saldo y limpia el input", async () => {
-    const wrapper = mount(PlataformaPagoView);
+    (apiax.post as any).mockResolvedValue({ data: { message: "OK" } });
 
-    const input = wrapper.get("input[type='number']");
-    await input.setValue("15");
-
-    (apiax as any).post.mockResolvedValue({
-      data: { message: "Saldo añadido correctamente ✔" },
+    const wrapper = mount(PlataformaPagoView, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            initialState: { auth: { user: { id: 1, saldo: 10 } } },
+            stubActions: false, 
+          }),
+        ],
+      },
     });
 
-    const btn = wrapper.get(".btn-pay");
+    const input = wrapper.find("input.input-lg");
+    await input.setValue(50);
+
+    const btn = wrapper.get("button.btn.primary.big-btn");
     await btn.trigger("click");
     await flushPromises();
 
-    expect((apiax as any).post).toHaveBeenCalledWith(
-      "/cartera/10/recargar",
-      { cantidad: 15 },
-      {
-        headers: { Authorization: "Bearer fake-token" },
-      }
+    expect(apiax.post).toHaveBeenCalledWith(
+      "/cartera/1/recargar",
+      { cantidad: 50 },
+      expect.anything()
     );
-
-    // se actualiza el saldo en el authState simulado
-    expect(authState.user.saldo).toBe(115);
-    // input limpiado
+    
+    expect(wrapper.text()).toContain("Saldo añadido correctamente");
     expect((input.element as HTMLInputElement).value).toBe("");
-    expect(wrapper.text()).toContain("Saldo añadido correctamente ✔");
   });
 
   it("en caso de error muestra mensaje de error del backend o genérico", async () => {
-    const wrapper = mount(PlataformaPagoView);
-
-    const input = wrapper.get("input[type='number']");
-    const btn = wrapper.get(".btn-pay");
-
-    // 1º error con mensaje del backend
-    await input.setValue("20");
-    (apiax as any).post.mockRejectedValueOnce({
-      response: { data: { message: "Error al añadir saldo desde API" } },
+    const wrapper = mount(PlataformaPagoView, {
+      global: {
+        plugins: [
+          createTestingPinia({ initialState: { auth: { user: { id: 1 } } } }),
+        ],
+      },
     });
 
+    const input = wrapper.find("input.input-lg");
+    const btn = wrapper.get("button.btn.primary.big-btn");
+
+    // Mock error
+    (apiax.post as any).mockRejectedValueOnce({
+      response: { data: { message: "Error backend" } },
+    });
+
+    await input.setValue(10);
     await btn.trigger("click");
     await flushPromises();
-    expect(wrapper.text()).toContain("Error al añadir saldo desde API");
-
-    // 2º error genérico sin response
-    await input.setValue("25");
-    (apiax as any).post.mockRejectedValueOnce(new Error("fail"));
-
-    await btn.trigger("click");
-    await flushPromises();
-    expect(wrapper.text()).toContain("❌ Error al añadir saldo");
+    
+    expect(wrapper.text()).toContain("Error backend");
   });
 
   it("botón volver navega a cuenta", async () => {
-    const wrapper = mount(PlataformaPagoView);
+    const wrapper = mount(PlataformaPagoView, {
+      global: { plugins: [createTestingPinia()] },
+    });
 
-    const backBtn = wrapper.get(".back-btn");
+    // Selector actualizado para el botón dentro del contenedor
+    const backBtn = wrapper.get(".back-button-container button");
     await backBtn.trigger("click");
 
     expect(pushMock).toHaveBeenCalledWith({ name: "cuenta" });

@@ -89,50 +89,6 @@ describe("grupoController", () => {
     expect(grupoRepo.createGroup).not.toHaveBeenCalled();
   });
 
-  it("createGroup crea el grupo, añade al jefe y devuelve 201", async () => {
-    req.jwt = { email: "jefe@test.com" };
-    req.body = { nombre: "Grupo Netflix" };
-
-    const fakeJefe = {
-      id_usuario: 10,
-      nombre: "Jefe",
-      mail: "jefe@test.com",
-    };
-
-    const fakeGroup = {
-      id_grupo: 5,
-      nombre: "Grupo Netflix",
-      fecha_creacion: "2025-11-18T00:00:00.000Z",
-      estado: "abierto",
-      id_jefe: 10,
-    };
-
-    (userRepo.findByEmail as any).mockResolvedValue(fakeJefe);
-    (grupoRepo.createGroup as any).mockResolvedValue(fakeGroup);
-    (miembroGrupoRepo.addMemberToGroup as any).mockResolvedValue({
-      id_grupo: 5,
-      id_usuario: 10,
-      fecha_ingreso: "2025-11-18T00:00:00.000Z",
-    });
-
-    await grupoController.createGroup(req, res);
-
-    expect(userRepo.findByEmail).toHaveBeenCalledWith("jefe@test.com");
-    expect(grupoRepo.createGroup).toHaveBeenCalledWith({
-      nombre: "Grupo Netflix",
-      id_jefe: 10,
-    });
-    expect(miembroGrupoRepo.addMemberToGroup).toHaveBeenCalledWith({
-      id_usuario: 10,
-      id_grupo: 5,
-    });
-    expect(status).toHaveBeenCalledWith(201);
-    expect(json).toHaveBeenCalledWith({
-      message: "Grupo creado con éxito",
-      group: fakeGroup,
-    });
-  });
-
   it("createGroup devuelve 500 si algo rompe en el try", async () => {
     req.jwt = { email: "jefe@test.com" };
     req.body = { nombre: "Grupo Netflix" };

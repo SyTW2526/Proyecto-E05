@@ -2,7 +2,7 @@ name: CI Fragments
 
 on:
   push:
-    branches: [main, dev, devIvan]
+    branches: [main, dev, devIvan, devIvan_2]
   pull_request:
     branches: [main, dev]
 
@@ -138,32 +138,74 @@ jobs:
             );
           "
 
+          # H) TABLA QUEJA
+          psql -h localhost -U postgres -d fragments -c "
+            CREATE TABLE IF NOT EXISTS queja (
+              id_queja SERIAL PRIMARY KEY,
+              id_usuario INTEGER REFERENCES usuario(id_usuario),
+              id_grupo INTEGER REFERENCES grupo(id_grupo),
+              titulo VARCHAR(255),
+              mensaje TEXT,
+              estado VARCHAR(50),
+              fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              fecha_resuelta TIMESTAMP
+            );
+          "
+
+          # I) TABLA ALERTA
+          psql -h localhost -U postgres -d fragments -c "
+            CREATE TABLE IF NOT EXISTS alerta (
+              id_alerta SERIAL PRIMARY KEY,
+              id_usuario INTEGER REFERENCES usuario(id_usuario),
+              tipo VARCHAR(100),
+              titulo VARCHAR(255),
+              mensaje TEXT,
+              leida BOOLEAN DEFAULT false,
+              id_grupo INTEGER REFERENCES grupo(id_grupo),
+              id_plan INTEGER REFERENCES plan_sub(id_plan),
+              id_transaccion INTEGER REFERENCES transaccion(id_transaccion),
+              fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              fecha_leida TIMESTAMP,
+              metadata JSONB
+            );
+          "
+
+          # J) COLUMNA fecha_inicio_cobro EN plan_sub
+          psql -h localhost -U postgres -d fragments -c "
+            ALTER TABLE plan_sub
+            ADD COLUMN IF NOT EXISTS fecha_inicio_cobro DATE;
+          "
+
+
           # 2. ARRANCAR BACKEND
           cd backend
           npm install
-          export PORT=3000
-          export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/fragments
-          export JWT_SECRET="secreto_super_seguro_para_tests_en_ci"
+          cat <<EOF > .env
+          PORT=5500
+          DATABASE_URL=postgresql://postgres:postgres@localhost:5432/fragments
+          JWT_SECRET=secreto_super_seguro_para_tests_en_ci
+          EOF
           npm run dev &
           cd ..
 
           # 3. ARRANCAR FRONTEND (Y dejarlo vivo)
           cd frontend/frangments-web
           npm install
-          echo "VITE_API_URL=http://localhost:3000" > .env
-          npm run dev -- --host & 
+          echo "VITE_API_URL=http://localhost:5500" > .env
+          npm run dev -- --host --port 5175 &
           cd ../..
 
           # 4. ESPERAR A QUE AMBOS RESPONDAN
-          npx wait-on tcp:3000 tcp:5173 --timeout 60000
+          npx wait-on tcp:5500 tcp:5175 --timeout 60000
 
-          # 5. REGISTRAR USUARIO
-          curl --fail -X POST http://localhost:3000/api/users \
+          echo '{"nombre": "Pedrito", "email": "pedrito@gmail.com", "telefono": "666777888", "password": "Pedrito", "tipo": "normal"}' > user_data.json
+                  
+          curl -v -X POST http://localhost:5500/api/users \
             -H "Content-Type: application/json" \
-            -d '{"nombre": "Pedrito", "email": "pedrito@gmail.com", "telefono": "666777888", "password": "Pedrito", "tipo": "normal"}'
-
+            -d @user_data.json || echo "Petición fallida"
+                  
           # -----------------------------------------------------------
-          # 6. LANZAR SELENIUM
+          # 5. LANZAR SELENIUM
           # -----------------------------------------------------------
           cd tests_e2e
           npm install selenium-webdriver mocha

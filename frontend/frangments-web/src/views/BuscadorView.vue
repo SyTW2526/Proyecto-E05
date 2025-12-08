@@ -1,13 +1,13 @@
 <template>
-  <div class="page buscador-page">
-    <!-- BOTÓN VOLVER GLOBAL -->
+  <div class="dashboard buscador-page">
+    <div class="watermark"></div>
+
     <div class="back-button-container">
-      <button type="button" class="btn back" @click="volverDashboard">
+      <button type="button" class="btn small ghost" @click="volverDashboard">
         ⬅ Volver
       </button>
     </div>
 
-    <!-- HEADER -->
     <header class="buscador-header animate-fade">
       <h2 class="buscador-title">Buscador de Plataformas</h2>
       <p class="buscador-subtitle">
@@ -15,63 +15,55 @@
       </p>
     </header>
 
-    <!-- BARRA BUSQUEDA -->
-    <div class="search-bar">
-      <input
-        type="text"
-        v-model="query"
-        placeholder="Buscar plataforma..."
-      />
-      <button class="btn primary">Buscar</button>
+    <div class="search-section animate-fade">
+      <div class="search-bar">
+        <input
+          type="text"
+          v-model="query"
+          placeholder="Buscar plataforma..."
+        />
+        <button class="btn primary">Buscar</button>
+      </div>
+
+      <div class="filters">
+        <button
+          v-for="(filtro, index) in filtros"
+          :key="index"
+          :class="['pill', { 'pill-active': filtroSeleccionado === filtro }]"
+          @click="seleccionarFiltro(filtro)"
+        >
+          {{ filtro }}
+        </button>
+      </div>
     </div>
 
-    <!-- FILTROS -->
-    <div class="filters">
-      <button
-        v-for="(filtro, index) in filtros"
-        :key="index"
-        :class="['filter-pill', { active: filtroSeleccionado === filtro }]"
-        @click="seleccionarFiltro(filtro)"
-      >
-        {{ filtro }}
-      </button>
-    </div>
-
-    <!-- RESULTADOS -->
-    <section class="resultados animate-fade-delayed">
-      <div v-if="resultadosFiltrados.length > 0" class="panel-glass resultados-panel">
-        <div class="plataformas-grid">
-          <article
-            v-for="plataforma in resultadosFiltrados"
-            :key="plataforma.id_plataforma"
-            class="card-radial float plataforma-pill"
-          >
-            <div class="plat-main">
-              <!-- Avatar tipo dashboard (letra) -->
-              <div class="plat-avatar">
-                <img
+    <section class="resultados-container animate-fade-delayed">
+      <div v-if="resultadosFiltrados.length > 0" class="plataformas-grid">
+        <article
+          v-for="plataforma in resultadosFiltrados"
+          :key="plataforma.id_plataforma"
+          class="plataforma-card float"
+          @click="verPlanes(plataforma)"
+        >
+          <div class="plat-content">
+            <div class="plat-logo">
+               <img
                   v-if="getLogo(plataforma.nombre)"
                   :src="getLogo(plataforma.nombre)"
                   alt="logo"
-                  class="plat-logo"
                 />
-                <span v-else>
+                <span v-else class="fallback-logo">
                   {{ plataforma.nombre[0] }}
                 </span>
-              </div>
-
-              <div class="plat-info">
-                <h3 class="plat-name">{{ plataforma.nombre }}</h3>
-              </div>
             </div>
-
-            <div class="plat-actions">
-              <button class="btn small ghost" @click.stop="verPlanes(plataforma)">
-                Consultar
-              </button>
+            <div class="plat-text">
+              <h4 class="plat-name">{{ plataforma.nombre }}</h4>
+              <span class="plat-cat">{{ plataforma.categoria }}</span>
             </div>
-          </article>
-        </div>
+          </div>
+
+          <button class="btn small ghost">Consultar</button>
+        </article>
       </div>
 
       <p v-else class="no-resultados">No se encontraron resultados.</p>
@@ -82,6 +74,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
+// Importa tus imágenes aquí igual que en el dashboard...
 import canvaLogo from "@/assets/canva_logo.png";
 import spotifyLogo from "@/assets/spotify_logo.png";
 import disneyLogo from "@/assets/disney_logo.png";
@@ -99,18 +92,11 @@ const logoMap: Record<string, string> = {
   "Crunchyroll": crunchyLogo,
   "Prime Video": primeLogo,
 };
-
 const getLogo = (nombre: string) => logoMap[nombre] ?? null;
 
-
-type Plataforma = {
-  id_plataforma: number;
-  nombre: string;
-  categoria: string;
-};
+type Plataforma = { id_plataforma: number; nombre: string; categoria: string; };
 
 const router = useRouter();
-
 const plataformas = ref<Plataforma[]>([
   { id_plataforma: 1, nombre: "Spotify",     categoria: "Música"},
   { id_plataforma: 2, nombre: "Disney+",     categoria: "Streaming"},
@@ -133,209 +119,200 @@ const resultadosFiltrados = computed(() =>
   })
 );
 
-function seleccionarFiltro(filtro: string) {
-  filtroSeleccionado.value =
-    filtroSeleccionado.value === filtro ? null : filtro;
-}
-
-function volverDashboard() {
-  router.push({ name: "dashboard" });
-}
-
-function verPlanes(plataforma: Plataforma) {
-  router.push({
-    name: "planes-plataforma",
-    params: {
-      id_plataforma: plataforma.id_plataforma,
-      plataforma: plataforma.nombre,
-    },
-  });
+function seleccionarFiltro(f: string) { filtroSeleccionado.value = filtroSeleccionado.value === f ? null : f; }
+function volverDashboard() { router.push({ name: "dashboard" }); }
+function verPlanes(p: Plataforma) {
+  router.push({ name: "planes-plataforma", params: { id_plataforma: p.id_plataforma, plataforma: p.nombre } });
 }
 </script>
 
 <style scoped>
-.buscador-page {
-  align-items: stretch;
+/* ESTILOS GLOBALES DASHBOARD */
+.dashboard {
+  position: relative;
+  min-height: 100vh;
+  padding: 1rem 2rem;
   background: linear-gradient(120deg, #e0f2ff, #a2b8d9, #1e293b);
+  color: #f9fafb;
+  font-family: "Inter", sans-serif;
+  display: flex;
+  flex-direction: column;
 }
+
+.watermark {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(circle at 15% 0%, rgba(255,255,255,0.35), transparent 55%),
+              radial-gradient(circle at 80% 100%, rgba(59,130,246,0.4), transparent 60%);
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 0;
+}
+.dashboard > * { position: relative; z-index: 1; }
 
 /* HEADER */
 .buscador-header {
   text-align: center;
-  margin-bottom: 1.8rem;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
 }
-
 .buscador-title {
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 800;
-  color: #ffffff;
+  color: rgba(15, 23, 42, 0.9);
+  text-shadow: 0 1px 2px rgba(255,255,255,0.6);
+  margin: 0;
 }
-
 .buscador-subtitle {
-  margin-top: 0.25rem;
-  color: #e5e7eb;
-  font-size: 0.95rem;
-  opacity: 0.9;
+  margin-top: 0.5rem;
+  color: rgba(15, 23, 42, 0.75);
+  font-weight: 500;
 }
 
-/* SEARCH BAR */
+/* BUSCADOR Y FILTROS */
+.search-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
 .search-bar {
+  display: flex;
   width: 100%;
-  max-width: 720px;
-  margin: 0 auto 1.4rem;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.75rem;
-}
-
-.search-bar input {
-  padding: 0.8rem 1rem;
+  max-width: 600px;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 0.5rem;
   border-radius: 999px;
-  border: 1px solid #cbd5e1;
-  font-size: 0.95rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+.search-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  color: white;
   outline: none;
-  background: #f9fafb;
-  color: #0f172a;
 }
+.search-bar input::placeholder { color: rgba(229, 231, 235, 0.7); }
 
-.search-bar input::placeholder {
-  color: #9ca3af;
-}
-
-.search-bar input:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.35);
-}
-
-/* FILTROS */
 .filters {
-  width: 100%;
-  max-width: 720px;
-  margin: 0 auto 2rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.6rem;
+  gap: 0.8rem;
 }
 
-.filter-pill {
-  background: rgba(255, 255, 255, 0.75);
+/* PILLS */
+.pill {
+  padding: 0.5rem 1.2rem;
   border-radius: 999px;
-  padding: 0.45rem 1.1rem;
+  background: rgba(15, 23, 42, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  color: #1e293b;
   cursor: pointer;
-  font-weight: 500;
-  font-size: 0.85rem;
-  color: #111827;
-  border: 1px solid rgba(148, 163, 184, 0.7);
-  transition: 0.2s ease;
+  font-weight: 600;
+  transition: 0.2s;
 }
-
-.filter-pill:hover {
-  background: #e0e7ff;
-}
-
-.filter-pill.active {
+.pill:hover { background: rgba(15, 23, 42, 0.25); }
+.pill-active {
   background: #4f46e5;
-  color: #ffffff;
-  border-color: transparent;
+  color: white;
+  border-color: #4f46e5;
+  box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
 }
 
-/* RESULTADOS */
-.resultados {
+/* GRID DE RESULTADOS (WIDE) */
+.resultados-container {
   width: 100%;
-  max-width: 1100px;
-  margin: 0 auto 2rem;
+  max-width: 1600px; /* Ancho máximo muy grande para llenar pantalla */
+  margin: 0 auto;
 }
 
-.resultados-panel {
-  padding: 2rem 2.2rem;
-}
-
-/* GRID DE PLATAFORMAS: estilo parecido al dashboard */
 .plataformas-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.4rem;
+  /* Grid adaptable que llena el ancho */
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
 }
 
-.plataforma-pill {
+.plataforma-card {
+  background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.9), rgba(15, 23, 42, 0.95));
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  border-radius: 1.4rem;
+  padding: 1.2rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.9rem 1.4rem;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.plataforma-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(15, 23, 42, 0.6);
+  border-color: rgba(129, 140, 248, 0.8);
 }
 
-.plat-main {
+.plat-content {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
+  gap: 1rem;
 }
-
-.plat-avatar {
+.plat-logo {
   width: 48px;
   height: 48px;
-  border-radius: 999px;
-  background: #ffffff;
+  background: white;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: 0 0 18px rgba(248, 250, 252, 0.45);
 }
+.plat-logo img { width: 100%; height: 100%; object-fit: contain; }
+.fallback-logo { font-weight: bold; font-size: 1.2rem; color: #0f172a; }
 
-.plat-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
+.plat-text { display: flex; flex-direction: column; }
+.plat-name { margin: 0; color: white; font-weight: 700; font-size: 1.1rem; }
+.plat-cat { font-size: 0.85rem; color: #94a3b8; }
+
+/* BOTONES */
+.btn {
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
 }
-
-.plat-name {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #f9fafb;
+.btn.primary {
+  padding: 0.6rem 1.5rem;
+  background: linear-gradient(135deg, #4f46e5, #22d3ee);
+  color: white;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
 }
+.btn.primary:hover { filter: brightness(1.1); transform: scale(1.02); }
 
-.plat-logo {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.plat-desc {
-  margin: 0;
+.btn.ghost {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  padding: 0.5rem 1rem;
   font-size: 0.85rem;
-  color: #d1d5db;
+  border: 1px solid rgba(255,255,255,0.2);
 }
+.btn.ghost:hover { background: rgba(255,255,255,0.2); }
 
-.plat-actions {
-  flex-shrink: 0;
+/* Botón volver (flotante top-left) */
+.back-button-container {
+  position: absolute;
+  top: 1.5rem;
+  left: 2rem;
 }
+.back-button-container .btn.ghost { color: #1e293b; border-color: rgba(148,163,184,0.5); }
 
-.no-resultados {
-  margin-top: 1.5rem;
-  text-align: center;
-  color: #e5e7eb;
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .search-bar {
-    grid-template-columns: 1fr;
-  }
-
-  .resultados-panel {
-    padding: 1.5rem 1.4rem;
-  }
-
-  .plataforma-pill {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .plat-actions {
-    align-self: stretch;
-  }
-}
+/* ANIMACIONES */
+.animate-fade { animation: fadeIn 0.5s ease; }
+.animate-fade-delayed { animation: fadeIn 0.7s ease backwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 </style>

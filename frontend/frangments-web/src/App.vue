@@ -26,7 +26,7 @@ const route = useRoute();
 
 // Rutas donde NO quieres ver ni navbar ni menús flotantes
 const publicRoutes = ["login", "register", "cuenta", "home"];
-const publicRoutesLeft = ["login", "register", "home"];
+const publicRoutesLeft = ["login", "register", "home", "dashboard"];
 
 
 const shouldShowNavbar = computed(

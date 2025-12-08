@@ -1,24 +1,24 @@
-import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { mount } from "@vue/test-utils";
 import BuscadorView from "@/views/BuscadorView.vue";
+import { useRouter } from "vue-router";
 
-const pushMock = vi.fn();
-
+// Mock del router
 vi.mock("vue-router", () => ({
-  useRouter: () => ({
-    push: pushMock,
-  }),
+  useRouter: vi.fn(),
 }));
 
 describe("BuscadorView", () => {
+  let pushMock: any;
+
   beforeEach(() => {
-    vi.clearAllMocks();
+    pushMock = vi.fn();
+    (useRouter as any).mockReturnValue({ push: pushMock });
   });
 
   it("muestra todas las plataformas por defecto", () => {
     const wrapper = mount(BuscadorView);
     const cards = wrapper.findAll(".plataforma-card");
-    // según tu lista fija deberían ser 7
     expect(cards.length).toBe(7);
   });
 
@@ -36,10 +36,14 @@ describe("BuscadorView", () => {
   it("filtra por categoría al pulsar un filtro", async () => {
     const wrapper = mount(BuscadorView);
 
+    // CORRECCIÓN: Buscamos el botón por su clase nueva (.pill) y texto
     const streamingBtn = wrapper
-      .findAll(".filter-btn")
-      .find((b) => b.text() === "Streaming")!;
-    await streamingBtn.trigger("click");
+      .findAll(".pill")
+      .find((b) => b.text() === "Streaming");
+    
+    // Verificamos que exista antes de trigger
+    expect(streamingBtn).toBeDefined();
+    await streamingBtn?.trigger("click");
 
     const cards = wrapper.findAll(".plataforma-card");
     // Disney+, HBO Max, Prime Video, Crunchyroll => 4
@@ -48,23 +52,28 @@ describe("BuscadorView", () => {
 
   it("al pulsar Consultar navega a la vista de planes con los params correctos", async () => {
     const wrapper = mount(BuscadorView);
+    const firstCard = wrapper.find(".plataforma-card");
+    const btnConsultar = firstCard.find("button"); // El único botón dentro de la card es "Consultar"
+    
+    // Obtenemos el texto del nombre para verificar el parámetro
+    const platName = firstCard.find(".plat-name").text();
 
-    const firstCardBtn = wrapper.get(".plataforma-card .btn.detalle");
-    const firstCardText = wrapper.get(".plataforma-card .plat-info h3").text();
-
-    await firstCardBtn.trigger("click");
+    await btnConsultar.trigger("click");
 
     expect(pushMock).toHaveBeenCalledWith({
       name: "planes-plataforma",
       params: expect.objectContaining({
-        plataforma: firstCardText,
+        plataforma: platName,
       }),
     });
   });
 
   it("botón Volver redirige a dashboard", async () => {
     const wrapper = mount(BuscadorView);
-    await wrapper.get(".btn.back").trigger("click");
+  
+    const backBtn = wrapper.get(".back-button-container button");
+    
+    await backBtn.trigger("click");
     expect(pushMock).toHaveBeenCalledWith({ name: "dashboard" });
   });
 });

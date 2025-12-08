@@ -6,7 +6,6 @@ import {
 } from "./alertas.repository";
 import { userRepo } from "../users/user.repository";
 
-// Este tipo NO usa req.user, usa req.jwt (como tu backend)
 interface AuthJWT {
   email: string;
   admin?: boolean;
