@@ -161,7 +161,7 @@ jobs:
           # 5. REGISTRAR USUARIO
           curl --fail -X POST http://localhost:5500/api/users \
             -H "Content-Type: application/json" \
-            -d '{"nombre": "Pedrito", "email": "pedrito@gmail.com", "telefono": "666777888", "password": "Pedrito", "tipo": "normal"}'
+            -d '{"nombre": "Pedrito", "mail": "pedrito@gmail.com", "telefono": "666777888", "contrasena": "Pedrito", "tipo": "normal"}'
 
           # -----------------------------------------------------------
           # 6. LANZAR SELENIUM
