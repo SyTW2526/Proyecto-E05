@@ -141,7 +141,6 @@ jobs:
           # 2. ARRANCAR BACKEND
           cd backend
           npm install
-          rm -f .env
           export PORT=5500
           export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/fragments
           export JWT_SECRET="secreto_super_seguro_para_tests_en_ci"
