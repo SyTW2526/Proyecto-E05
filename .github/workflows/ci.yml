@@ -2,7 +2,8 @@ name: CI Fragments
 
 on:
   push:
-    branches: [main, dev, devIvan, devIvan_2]
+    branches: [main, dev, devIvan, devIvan_2,
+              devManuel, devDaniel]
   pull_request:
     branches: [main, dev]
 
@@ -28,7 +29,7 @@ jobs:
           npm install
           npm run test:unit
 
-  # 2. E2E TESTS (FULL STACK)
+  # 2. E2E TESTS 
   e2e-tests:
     name: E2E Selenium Tests
     runs-on: ubuntu-latest
@@ -188,7 +189,7 @@ jobs:
           npm run dev &
           cd ..
 
-          # 3. ARRANCAR FRONTEND (Y dejarlo vivo)
+          # 3. ARRANCAR FRONTEND 
           cd frontend/frangments-web
           npm install
           echo "VITE_API_URL=http://localhost:5500" > .env
